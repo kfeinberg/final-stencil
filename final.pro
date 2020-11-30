@@ -25,13 +25,15 @@ SOURCES += ui/mainwindow.cpp \
     main.cpp \
     glew-1.10.0/src/glew.c \
     ui/view.cpp \
-    ui/viewformat.cpp
+    ui/viewformat.cpp \
+    LSystem.cpp
 
 HEADERS += ui/mainwindow.h \
     ui_mainwindow.h \
     glew-1.10.0/include/GL/glew.h \
     ui/view.h \
-    ui/viewformat.h
+    ui/viewformat.h \
+    LSystem.h
 
 FORMS += ui/mainwindow.ui
 INCLUDEPATH += glm ui glew-1.10.0/include

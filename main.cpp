@@ -1,5 +1,7 @@
 #include <QApplication>
 #include "mainwindow.h"
+#include "LSystem.h"
+#include <iostream>
 
 int main(int argc, char *argv[])
 {
@@ -15,6 +17,19 @@ int main(int argc, char *argv[])
         // it has been shown.
         w.setWindowState(w.windowState() | Qt::WindowFullScreen);
     }
+
+    // example use of LSystem class; TODO: REMOVE
+    std::map<char, std::string> rules;
+    rules['a'] = "ab";
+    rules['b'] = "a";
+
+    LSystem l = LSystem(rules, "a");
+
+    std::cout << l.applyRules(0) << std::endl;
+    std::cout << l.applyRules(1) << std::endl;
+    std::cout << l.applyRules(2) << std::endl;
+    std::cout << l.applyRules(3) << std::endl;
+    std::cout << l.applyRules(4) << std::endl;
 
     return app.exec();
 }

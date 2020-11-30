@@ -54,7 +54,8 @@ SOURCES       = ui/mainwindow.cpp \
 		main.cpp \
 		glew-1.10.0/src/glew.c \
 		ui/view.cpp \
-		ui/viewformat.cpp qrc_resources.cpp \
+		ui/viewformat.cpp \
+		LSystem.cpp qrc_resources.cpp \
 		moc_mainwindow.cpp \
 		moc_view.cpp
 OBJECTS       = mainwindow.o \
@@ -62,6 +63,7 @@ OBJECTS       = mainwindow.o \
 		glew.o \
 		view.o \
 		viewformat.o \
+		LSystem.o \
 		qrc_resources.o \
 		moc_mainwindow.o \
 		moc_view.o
@@ -166,11 +168,13 @@ DIST          = shaders/normals/normals.vert \
 		ui_mainwindow.h \
 		glew-1.10.0/include/GL/glew.h \
 		ui/view.h \
-		ui/viewformat.h ui/mainwindow.cpp \
+		ui/viewformat.h \
+		LSystem.h ui/mainwindow.cpp \
 		main.cpp \
 		glew-1.10.0/src/glew.c \
 		ui/view.cpp \
-		ui/viewformat.cpp
+		ui/viewformat.cpp \
+		LSystem.cpp
 QMAKE_TARGET  = final
 DESTDIR       = 
 TARGET        = final
@@ -395,8 +399,8 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents resources.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ui/mainwindow.h ui_mainwindow.h glew-1.10.0/include/GL/glew.h ui/view.h ui/viewformat.h $(DISTDIR)/
-	$(COPY_FILE) --parents ui/mainwindow.cpp main.cpp glew-1.10.0/src/glew.c ui/view.cpp ui/viewformat.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ui/mainwindow.h ui_mainwindow.h glew-1.10.0/include/GL/glew.h ui/view.h ui/viewformat.h LSystem.h $(DISTDIR)/
+	$(COPY_FILE) --parents ui/mainwindow.cpp main.cpp glew-1.10.0/src/glew.c ui/view.cpp ui/viewformat.cpp LSystem.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ui/mainwindow.ui $(DISTDIR)/
 
 
@@ -479,7 +483,8 @@ mainwindow.o: ui/mainwindow.cpp ui/mainwindow.h \
 		glew-1.10.0/include/GL/glew.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ui/mainwindow.cpp
 
-main.o: main.cpp ui/mainwindow.h
+main.o: main.cpp ui/mainwindow.h \
+		LSystem.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 glew.o: glew-1.10.0/src/glew.c glew-1.10.0/include/GL/glew.h \
@@ -494,6 +499,9 @@ view.o: ui/view.cpp ui/view.h \
 
 viewformat.o: ui/viewformat.cpp ui/viewformat.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o viewformat.o ui/viewformat.cpp
+
+LSystem.o: LSystem.cpp LSystem.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o LSystem.o LSystem.cpp
 
 qrc_resources.o: qrc_resources.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_resources.o qrc_resources.cpp

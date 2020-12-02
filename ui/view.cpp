@@ -1,11 +1,11 @@
-#include "view.h"
+﻿#include "view.h"
 
 #include "viewformat.h"
 #include <QApplication>
 #include <QKeyEvent>
 #include <iostream>
-#include "gl/shaders/CS123Shader.h"
-#include "lib/ResourceLoader.h"
+
+#include "scene/Scene.h"
 
 View::View(QWidget *parent) : QGLWidget(ViewFormat(), parent),
     m_time(), m_timer(), m_captureMouse(false)
@@ -43,52 +43,26 @@ void View::initializeGL() {
     }
     std::cout << "Using GLEW " <<  glewGetString( GLEW_VERSION ) << std::endl;
 
-    // Enabling OpenGL features
+    // setting OpenGL settings
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
-    // Compiling shaders
-    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/test.vert");
-    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/test.frag");
-    m_testShader = std::make_unique<CS123::GL::CS123Shader>(vertexSource, fragmentSource);
-
     // Start a timer that will try to get 60 frames per second (the actual
     // frame rate depends on the operating system and other running programs)
     m_time.start();
     m_timer.start(1000 / 60);
+
+    initializeScene();
+}
+
+void View::initializeScene() {
+    m_scene = std::make_unique<Scene>();
 }
 
 void View::paintGL() {
-    // prints a white triangle
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    m_testShader->bind();
-    GLuint VertexArrayID;
-    glGenVertexArrays(1, &VertexArrayID);
-    glBindVertexArray(VertexArrayID);
-    static const GLfloat g_vertex_buffer_data[] = {
-       -1.0f, -1.0f, 0.0f,
-       1.0f, -1.0f, 0.0f,
-       0.0f,  1.0f, 0.0f,
-    };
-    GLuint vertexbuffer;
-    glGenBuffers(1, &vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glVertexAttribPointer(
-       0,
-       3,
-       GL_FLOAT,
-       GL_FALSE,
-       0,
-       (void*)0
-    );
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDisableVertexAttribArray(0);
-    m_testShader->unbind();
+    m_scene->render();
 }
 
 void View::resizeGL(int w, int h) {

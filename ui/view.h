@@ -7,10 +7,7 @@
 #include <QTimer>
 #include <memory>
 
-namespace CS123 { namespace GL {
-    class Shader;
-    class CS123Shader;
-}}
+class Scene;
 
 class View : public QGLWidget {
     Q_OBJECT
@@ -25,6 +22,7 @@ private:
     bool m_captureMouse;
 
     void initializeGL();
+    void initializeScene();
     void paintGL();
     void resizeGL(int w, int h);
 
@@ -35,7 +33,7 @@ private:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
-    std::unique_ptr<CS123::GL::CS123Shader> m_testShader;
+    std::unique_ptr<Scene> m_scene;
 
 private slots:
     void tick();

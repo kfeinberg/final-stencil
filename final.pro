@@ -22,6 +22,7 @@ win32 {
 }
 
 SOURCES += ui/mainwindow.cpp \
+    lib/ResourceLoader.cpp \
     main.cpp \
     glew-1.10.0/src/glew.c \
     ui/view.cpp \
@@ -29,6 +30,7 @@ SOURCES += ui/mainwindow.cpp \
     LSystem.cpp
 
 HEADERS += ui/mainwindow.h \
+    lib/ResourceLoader.h \
     ui_mainwindow.h \
     glew-1.10.0/include/GL/glew.h \
     ui/view.h \
@@ -72,4 +74,6 @@ DISTFILES += \
     shaders/normals/normals.gsh \
     shaders/normals/normalsArrow.gsh \
     shaders/normals/normalsArrow.frag \
-    shaders/normals/normalsArrow.vert
+    shaders/normals/normalsArrow.vert \
+    shaders/test.frag \
+    shaders/test.vert

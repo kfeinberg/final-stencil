@@ -29,6 +29,8 @@ private:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
+    GLuint m_program;
+
 private slots:
     void tick();
 };

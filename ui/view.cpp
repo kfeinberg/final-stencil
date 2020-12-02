@@ -5,6 +5,8 @@
 #include <QKeyEvent>
 #include <iostream>
 
+#include "lib/ResourceLoader.h" // for loading shaders
+
 View::View(QWidget *parent) : QGLWidget(ViewFormat(), parent),
     m_time(), m_timer(), m_captureMouse(false)
 {
@@ -46,6 +48,8 @@ void View::initializeGL() {
     m_time.start();
     m_timer.start(1000 / 60);
 
+    m_program = ResourceLoader::createShaderProgram(":/shaders/test.vert", ":/shaders/test.frag");
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
@@ -53,9 +57,34 @@ void View::initializeGL() {
 }
 
 void View::paintGL() {
+    // prints a white triangle
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // TODO: Implement the demo rendering here
+    glUseProgram(m_program);
+    GLuint VertexArrayID;
+    glGenVertexArrays(1, &VertexArrayID);
+    glBindVertexArray(VertexArrayID);
+    static const GLfloat g_vertex_buffer_data[] = {
+       -1.0f, -1.0f, 0.0f,
+       1.0f, -1.0f, 0.0f,
+       0.0f,  1.0f, 0.0f,
+    };
+    GLuint vertexbuffer;
+    glGenBuffers(1, &vertexbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+    glVertexAttribPointer(
+       0,
+       3,
+       GL_FLOAT,
+       GL_FALSE,
+       0,
+       (void*)0
+    );
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDisableVertexAttribArray(0);
+    glUseProgram(0);
 }
 
 void View::resizeGL(int w, int h) {
@@ -108,5 +137,5 @@ void View::tick() {
     // TODO: Implement the demo update here
 
     // Flag this view for repainting (Qt will call paintGL() soon after)
-    update();
+    // update();
 }

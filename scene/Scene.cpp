@@ -1,14 +1,19 @@
 #include "Scene.h"
 
 #include "lib/ResourceLoader.h"
+#include "lib/CS123SceneData.h"
+#include "shapes/Cylinder.h"
+#include <sstream>
+
+#include "gl/GLDebug.h" // useful for debugging shader stuff
 
 using namespace CS123::GL;
 
 Scene::Scene()
 {
     // loading and compiling shader
-    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/test.vert");
-    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/test.frag");
+    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/shader.vert");
+    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/shader.frag");
     m_shader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
 }
 
@@ -16,33 +21,37 @@ Scene::~Scene()
 {
 }
 
+Camera *Scene::getCamera() {
+    return &m_camera;
+}
+
 void Scene::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // setting camera orientation
+    m_camera.orientLook(
+                glm::vec4(2.f, 2.f, 2.f, 1.f),
+                glm::vec4(-1.f, -1.f, -1.f, 0.f),
+                glm::vec4(0.f, 1.f, 0.f, 0.f));
+
+    // creating wood material
+    CS123SceneMaterial wood;
+    wood.clear();
+    wood.cAmbient.r = 133.f / 255.f;
+    wood.cAmbient.g = 94.f / 255.f;
+    wood.cAmbient.b = 66.f / 255.f;
+
+    // creating cylinder
+    Cylinder tree(20, 20);
+
     m_shader->bind();
-    // hardcoded triangle
-    GLuint VertexArrayID;
-    glGenVertexArrays(1, &VertexArrayID);
-    glBindVertexArray(VertexArrayID);
-    static const GLfloat g_vertex_buffer_data[] = {
-       -1.0f, -1.0f, 0.0f,
-       1.0f, -1.0f, 0.0f,
-       0.0f,  1.0f, 0.0f,
-    };
-    GLuint vertexbuffer;
-    glGenBuffers(1, &vertexbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glVertexAttribPointer(
-       0,
-       3,
-       GL_FLOAT,
-       GL_FALSE,
-       0,
-       (void*)0
-    );
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDisableVertexAttribArray(0);
+    m_shader->setUniform("useLighting", false); // use only ambient and diffuse color
+    m_shader->setUniform("useArrowOffsets", false); // skip arrow billboarding
+    m_shader->applyMaterial(wood);
+    m_shader->setUniform("p", m_camera.getProjectionMatrix());
+    m_shader->setUniform("v", m_camera.getViewMatrix());
+    m_shader->setUniform("m", glm::mat4(1.0f));
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    tree.draw();
     m_shader->unbind();
 }

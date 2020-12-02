@@ -70,6 +70,8 @@ void View::resizeGL(int w, int h) {
     w = static_cast<int>(w / ratio);
     h = static_cast<int>(h / ratio);
     glViewport(0, 0, w, h);
+    m_scene->getCamera()->setAspectRatio(static_cast<float>(width()) / static_cast<float>(height()));
+    m_scene->render();
 }
 
 void View::mousePressEvent(QMouseEvent *event) {
@@ -84,7 +86,7 @@ void View::mouseMoveEvent(QMouseEvent *event) {
     // in that direction. Note that it is important to check that deltaX and
     // deltaY are not zero before recentering the mouse, otherwise there will
     // be an infinite loop of mouse move events.
-    if(m_captureMouse) {
+    if (m_captureMouse) {
         int deltaX = event->x() - width() / 2;
         int deltaY = event->y() - height() / 2;
         if (!deltaX && !deltaY) return;

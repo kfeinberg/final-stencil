@@ -1,7 +1,9 @@
 #include <QApplication>
 #include "mainwindow.h"
-#include "LSystem.h"
 #include <iostream>
+
+#include "trees/Turtle.h"
+#include "trees/LSystem.h"
 
 int main(int argc, char *argv[])
 {
@@ -18,18 +20,18 @@ int main(int argc, char *argv[])
         w.setWindowState(w.windowState() | Qt::WindowFullScreen);
     }
 
-    // example use of LSystem class; TODO: REMOVE
+    // example use of LSystem class
+    // source: https://github.com/abiusx/L3D/blob/master/L%2B%2B/tree.l%2B%2B
     std::map<char, std::string> rules;
-    rules['a'] = "ab";
-    rules['b'] = "a";
+    rules['A'] = "^F>(30)B\\B\\\\\B";
+    rules['B'] = "[^^FL\\\\\\AL]";
+    rules['L'] = "[^(60)[*(.3)]+(50)*(.28)]";
 
-    LSystem l = LSystem(rules, "a");
+    LSystem l = LSystem(rules, "FA");
 
-    std::cout << l.applyRules(0) << std::endl;
-    std::cout << l.applyRules(1) << std::endl;
-    std::cout << l.applyRules(2) << std::endl;
-    std::cout << l.applyRules(3) << std::endl;
-    std::cout << l.applyRules(4) << std::endl;
+    std::string res = l.applyRules(3);
+    Turtle t = Turtle();
+    t.parseInput(res);
 
     return app.exec();
 }

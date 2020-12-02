@@ -9,14 +9,18 @@
  *
  * Symbolic explanations:
  * F move forward by d units
- * + turn left by angle δ
- * - turn right by angle δ
+ * + yaw left by angle δ
+ * - yaw right by angle δ
  * & pitch down by angle δ
  * ∧ pitch up by angle δ
  * \ roll left by angle δ
  * / roll right by angle δ
  * [ start of new branch (push the state onto the stack)
  * ] end of branch (pop the state from the stack and old state becomes current state)
+ * > : decrease thickness (by percent of its own)
+ * < : increase thickness (by percent of its own)
+ * = : set thickness (to percentage of length)
+ * * : draw leaf
  */
 
 class LSystem

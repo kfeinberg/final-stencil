@@ -41,7 +41,12 @@ SOURCES += ui/mainwindow.cpp \
     glew-1.10.0/src/glew.c \
     ui/view.cpp \
     ui/viewformat.cpp \
-    LSystem.cpp
+    trees/LSystem.cpp \
+    shapes/Cylinder.cpp \
+    shapes/CylinderComponent.cpp \
+    shapes/ShapeComponent.cpp \
+    shapes/Shape.cpp \
+    trees/Turtle.cpp
 
 HEADERS += ui/mainwindow.h \
     gl/GLDebug.h \
@@ -66,7 +71,12 @@ HEADERS += ui/mainwindow.h \
     glew-1.10.0/include/GL/glew.h \
     ui/view.h \
     ui/viewformat.h \
-    LSystem.h
+    trees/LSystem.h \
+    shapes/Cylinder.h \
+    shapes/CylinderComponent.h \
+    shapes/ShapeComponent.h \
+    shapes/Shape.h \
+    trees/Turtle.h
 
 FORMS += ui/mainwindow.ui
 INCLUDEPATH += glm ui glew-1.10.0/include

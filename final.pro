@@ -22,6 +22,20 @@ win32 {
 }
 
 SOURCES += ui/mainwindow.cpp \
+    gl/GLDebug.cpp \
+    gl/datatype/FBO.cpp \
+    gl/datatype/IBO.cpp \
+    gl/datatype/VAO.cpp \
+    gl/datatype/VBO.cpp \
+    gl/datatype/VBOAttribMarker.cpp \
+    gl/shaders/CS123Shader.cpp \
+    gl/shaders/Shader.cpp \
+    gl/textures/DepthBuffer.cpp \
+    gl/textures/RenderBuffer.cpp \
+    gl/textures/Texture.cpp \
+    gl/textures/Texture2D.cpp \
+    gl/textures/TextureParameters.cpp \
+    gl/textures/TextureParametersBuilder.cpp \
     lib/ResourceLoader.cpp \
     main.cpp \
     glew-1.10.0/src/glew.c \
@@ -30,6 +44,23 @@ SOURCES += ui/mainwindow.cpp \
     LSystem.cpp
 
 HEADERS += ui/mainwindow.h \
+    gl/GLDebug.h \
+    gl/datatype/FBO.h \
+    gl/datatype/IBO.h \
+    gl/datatype/VAO.h \
+    gl/datatype/VBO.h \
+    gl/datatype/VBOAttribMarker.h \
+    gl/shaders/CS123Shader.h \
+    gl/shaders/Shader.h \
+    gl/shaders/ShaderAttribLocations.h \
+    gl/textures/DepthBuffer.h \
+    gl/textures/RenderBuffer.h \
+    gl/textures/Texture.h \
+    gl/textures/Texture2D.h \
+    gl/textures/TextureParameters.h \
+    gl/textures/TextureParametersBuilder.h \
+    lib/CS123SceneData.h \
+    lib/CS123XmlSceneParser.h \
     lib/ResourceLoader.h \
     ui_mainwindow.h \
     glew-1.10.0/include/GL/glew.h \

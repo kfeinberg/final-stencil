@@ -4,8 +4,8 @@
 #include <QApplication>
 #include <QKeyEvent>
 #include <iostream>
-
-#include "lib/ResourceLoader.h" // for loading shaders
+#include "gl/shaders/CS123Shader.h"
+#include "lib/ResourceLoader.h"
 
 View::View(QWidget *parent) : QGLWidget(ViewFormat(), parent),
     m_time(), m_timer(), m_captureMouse(false)
@@ -34,7 +34,7 @@ void View::initializeGL() {
     // method. Before this method is called, there is no active OpenGL
     // context and all OpenGL calls have no effect.
 
-    //initialize glew
+    // initialize glew
     glewExperimental = GL_TRUE;
     GLenum err = glewInit();
     if (GLEW_OK != err) {
@@ -43,23 +43,27 @@ void View::initializeGL() {
     }
     std::cout << "Using GLEW " <<  glewGetString( GLEW_VERSION ) << std::endl;
 
-    // Start a timer that will try to get 60 frames per second (the actual
-    // frame rate depends on the operating system and other running programs)
-    m_time.start();
-    m_timer.start(1000 / 60);
-
-    m_program = ResourceLoader::createShaderProgram(":/shaders/test.vert", ":/shaders/test.frag");
-
+    // Enabling OpenGL features
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
+
+    // Compiling shaders
+    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/test.vert");
+    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/test.frag");
+    m_testShader = std::make_unique<CS123::GL::CS123Shader>(vertexSource, fragmentSource);
+
+    // Start a timer that will try to get 60 frames per second (the actual
+    // frame rate depends on the operating system and other running programs)
+    m_time.start();
+    m_timer.start(1000 / 60);
 }
 
 void View::paintGL() {
     // prints a white triangle
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUseProgram(m_program);
+    m_testShader->bind();
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
     glBindVertexArray(VertexArrayID);
@@ -84,7 +88,7 @@ void View::paintGL() {
     );
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glDisableVertexAttribArray(0);
-    glUseProgram(0);
+    m_testShader->unbind();
 }
 
 void View::resizeGL(int w, int h) {

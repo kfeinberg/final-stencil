@@ -5,6 +5,12 @@
 #include <qgl.h>
 #include <QTime>
 #include <QTimer>
+#include <memory>
+
+namespace CS123 { namespace GL {
+    class Shader;
+    class CS123Shader;
+}}
 
 class View : public QGLWidget {
     Q_OBJECT
@@ -29,7 +35,7 @@ private:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
-    GLuint m_program;
+    std::unique_ptr<CS123::GL::CS123Shader> m_testShader;
 
 private slots:
     void tick();

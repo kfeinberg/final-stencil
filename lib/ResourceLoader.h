@@ -1,17 +1,29 @@
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef RESOURCELOADER_H
+#define RESOURCELOADER_H
+
+#include <exception>
+#include <string>
 
 #include "GL/glew.h"
 
-class ResourceLoader {
-public:
-    ResourceLoader();
-    ~ResourceLoader();
+namespace CS123 {
 
-    static GLuint createShaderProgram(const char *vertex_file_path, const char *fragment_file_path);
+class IOException : public std::exception {
+public:
+    IOException(const std::string &what) : message(what) {}
+    virtual ~IOException() throw() {}
+    virtual const char* what() const throw() override { return message.c_str(); }
 
 private:
-    static GLuint createShader(GLenum shaderType, const char *filepath);
+    std::string message;
 };
 
-#endif // SHADER_H
+}
+
+class ResourceLoader
+{
+public:
+    static std::string loadResourceFileToString(const std::string &resourcePath);
+};
+
+#endif // RESOURCELOADER_H

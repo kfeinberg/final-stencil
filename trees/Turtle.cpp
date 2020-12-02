@@ -81,8 +81,14 @@ void Turtle::parseInput(std::string input) {
  */
 void Turtle::moveForward() {
 
-    // draw branch segment
-    Cylinder c(10, 10); //TODO: transform cylinder to turtle pos/rot
+    // basic cylinder
+    Cylinder c(10, 10);
+
+    // transformation matrix to correct turtle position
+    glm::mat4x4 mat = currTransMatrix();
+
+    // move whole shape to correct location
+    // m_phongShader->setUniform("m", mat);
     c.draw();
 
     // calculate forward vector based on yaw, pitch, deg
@@ -123,4 +129,17 @@ void Turtle::restore() {
     m_pitch = t.m_pitch;
     m_yaw = t.m_yaw;
     m_roll = t.m_roll;
+}
+
+glm::mat4x4 Turtle::currTransMatrix() {
+    glm::mat4x4 scale = glm::scale(glm::vec3(0.0f, f_dist, 0.0f)); // scales cylinder in y direction by f_dist
+
+    glm::mat4x4 yaw = glm::rotate(m_yaw, glm::vec3(0, 0, 1));
+    glm::mat4x4 pitch = glm::rotate(m_pitch, glm::vec3(0, 1, 0));
+    glm::mat4x4 roll = glm::rotate(m_roll, glm::vec3(1, 0, 0));
+    glm::mat4x4 rotate = yaw * pitch * roll;
+
+    glm::mat4 trans = glm::translate(glm::vec3(m_pos.x, m_pos.y, m_pos.z)); // translates cylinder to current turtle
+
+    return scale * rotate * trans;
 }

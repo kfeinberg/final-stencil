@@ -22,6 +22,7 @@ win32 {
 }
 
 SOURCES += ui/mainwindow.cpp \
+    camera/CamtransCamera.cpp \
     gl/GLDebug.cpp \
     gl/datatype/FBO.cpp \
     gl/datatype/IBO.cpp \
@@ -49,6 +50,8 @@ SOURCES += ui/mainwindow.cpp \
     trees/Turtle.cpp
 
 HEADERS += ui/mainwindow.h \
+    camera/Camera.h \
+    camera/CamtransCamera.h \
     gl/GLDebug.h \
     gl/datatype/FBO.h \
     gl/datatype/IBO.h \

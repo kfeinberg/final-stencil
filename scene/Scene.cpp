@@ -23,7 +23,6 @@ Scene::Scene()
 
     // loading grass texture
     QImage grassImage(":/images/grass.png");
-    std::cout << grassImage.isNull() << std::endl;
     m_grassTexture = std::make_unique<Texture2D>(grassImage.bits(), grassImage.width(), grassImage.height());
     TextureParametersBuilder builder;
     builder.setFilter(TextureParameters::FILTER_METHOD::NEAREST);

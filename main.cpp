@@ -20,18 +20,5 @@ int main(int argc, char *argv[])
         w.setWindowState(w.windowState() | Qt::WindowFullScreen);
     }
 
-    // example use of LSystem class
-    // source: https://github.com/abiusx/L3D/blob/master/L%2B%2B/tree.l%2B%2B
-    std::map<char, std::string> rules;
-    rules['A'] = "^F>(30)B\\B\\\\\B";
-    rules['B'] = "[^^FL\\\\\\AL]";
-    rules['L'] = "[^(60)[*(.3)]+(50)*(.28)]";
-
-    LSystem l = LSystem(rules, "FA");
-
-    std::string res = l.applyRules(3);
-    Turtle t = Turtle();
-    t.parseInput(res);
-
     return app.exec();
 }

@@ -22,6 +22,7 @@ public:
 
 public:
     void render();
+    void drawTree();
     Camera *getCamera();
 
 private:

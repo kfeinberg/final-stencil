@@ -9,6 +9,8 @@
 #include "shapes/Grass.h"
 #include "gl/textures/TextureParameters.h"
 #include "gl/textures/TextureParametersBuilder.h"
+#include "trees/LSystem.h"
+#include "trees/Turtle.h"
 
 #include "gl/GLDebug.h" // useful for debugging shader stuff
 
@@ -39,7 +41,32 @@ Camera *Scene::getCamera() {
     return &m_camera;
 }
 
+void Scene::drawTree() {
+
+    // source: https://github.com/abiusx/L3D/blob/master/L%2B%2B/tree.l%2B%2B
+//    std::map<char, std::string> rules;
+//    rules['A'] = "^F>(30)B\\B\\\\\B";
+//    rules['B'] = "[^^FL\\\\\\AL]";
+//    rules['L'] = "[^(60)[*(.3)]+(50)*(.28)]";
+
+//    LSystem l = LSystem(rules, "FA");
+
+//    std::string res = l.applyRules(3);
+    std::string res = "F-F";
+
+    Turtle t = Turtle();
+    t.parseInput(res);
+
+    Cylinder tree(20, 20);
+
+    for (glm::mat4x4 mat: t.m_cylinderTransformations) {
+         m_shader->setUniform("m", mat);
+         tree.draw();
+    }
+}
+
 void Scene::render() {
+    std::cout << "Rendering scene" << std::endl;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -59,29 +86,44 @@ void Scene::render() {
     // creating cylinder
     Cylinder tree(20, 20);
 
-    // grass primitive
-    Grass grass;
-
     m_shader->bind();
-    m_grassTexture->bind();
-
-    // sending camera matrices to shader
-    m_shader->setUniform("p", m_camera.getProjectionMatrix());
-    m_shader->setUniform("v", m_camera.getViewMatrix());
-    m_shader->setUniform("m", glm::mat4(1.0f));
-
-    // setting other shader settings
     m_shader->setUniform("useLighting", false); // use only ambient and diffuse color
     m_shader->setUniform("useArrowOffsets", false); // skip arrow billboarding
-
-    // texturing settings
-    m_shader->setUniform("useTexture", true);
-
-    // sending primitive color
     m_shader->applyMaterial(wood);
+    m_shader->setUniform("p", m_camera.getProjectionMatrix());
+    m_shader->setUniform("v", m_camera.getViewMatrix());
+    m_shader->setUniform("m", glm::mat4(1.0f)); // set for each cylinder
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    grass.draw();
+    //tree.draw();
 
-    m_grassTexture->unbind();
+    drawTree();
+
+//    m_shader->unbind();
+
+//    // grass primitive
+    //Grass grass;
+
+//    m_shader->bind();
+    //m_grassTexture->bind();
+
+//    // sending camera matrices to shader
+//    m_shader->setUniform("p", m_camera.getProjectionMatrix());
+//    m_shader->setUniform("v", m_camera.getViewMatrix());
+//    m_shader->setUniform("m", glm::mat4(1.0f));
+
+//    // setting other shader settings
+//    m_shader->setUniform("useLighting", false); // use only ambient and diffuse color
+//    m_shader->setUniform("useArrowOffsets", false); // skip arrow billboarding
+
+//    // texturing settings
+//    m_shader->setUniform("useTexture", true);
+
+//    // sending primitive color
+//    m_shader->applyMaterial(wood);
+
+    //grass.draw();
+
+    //m_grassTexture->unbind();
     m_shader->unbind();
 }

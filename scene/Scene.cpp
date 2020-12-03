@@ -44,15 +44,16 @@ Camera *Scene::getCamera() {
 void Scene::drawTree() {
 
     // source: https://github.com/abiusx/L3D/blob/master/L%2B%2B/tree.l%2B%2B
-//    std::map<char, std::string> rules;
-//    rules['A'] = "^F>(30)B\\B\\\\\B";
-//    rules['B'] = "[^^FL\\\\\\AL]";
-//    rules['L'] = "[^(60)[*(.3)]+(50)*(.28)]";
+    std::map<char, std::string> rules;
+    rules['A'] = "^F>(30)B\\B\\\\\B";
+    rules['B'] = "[^^FL\\\\\\AL]";
+    rules['L'] = "[^(60)[*(.3)]+(50)*(.28)]";
 
-//    LSystem l = LSystem(rules, "FA");
+    LSystem l = LSystem(rules, "FA");
 
-//    std::string res = l.applyRules(3);
-    std::string res = "F-F";
+    //std::string res = l.applyRules(5);
+    std::string res = "F[-F]F";
+    //std::string res = "F";
 
     Turtle t = Turtle();
     t.parseInput(res);

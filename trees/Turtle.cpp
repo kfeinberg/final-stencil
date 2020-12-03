@@ -3,10 +3,10 @@
 Turtle::Turtle()
 {
     m_pos = glm::vec3(0.0f, 0.0f, 0.0f);
-    m_thickness = 0.1f;
+    m_thickness = 0.2f;
     m_pitch = 0.0f;
-    m_yaw = M_PI/2; // initialize looking up y-axis
-    m_roll = 0.0f;
+    m_yaw = 0.0f; // initialize looking up y-axis
+    m_roll = M_PI/2.0;
 }
 
 /**
@@ -58,27 +58,27 @@ void Turtle::executeCommand(char command, bool hasParam, float param) {
             moveForward();
             break;
         case '+':
-            if (hasParam) m_yaw += param;
+            if (hasParam) m_yaw += param * M_PI/180.0f;
             else m_yaw += theta;
             break;
         case '-':
-            if (hasParam) m_yaw -= param;
+            if (hasParam) m_yaw -= param * M_PI/180.0f;
             else m_yaw -= theta;
             break;
         case '&':
-            if (hasParam) m_pitch += param;
+            if (hasParam) m_pitch += param * M_PI/180.0f;
             else m_pitch += theta;
             break;
         case '^':
-            if (hasParam) m_pitch -= param;
+            if (hasParam) m_pitch -= param * M_PI/180.0f;
             else m_pitch -= theta;
             break;
         case '\\':
-            if (hasParam) m_roll += param;
+            if (hasParam) m_roll += param * M_PI/180.0f;
             else m_roll += theta;
             break;
         case '/':
-            if (hasParam) m_roll -= theta;
+            if (hasParam) m_roll -= param * M_PI/180.0f;
             else m_roll -= theta;
             break;
         case '[':
@@ -125,10 +125,6 @@ void Turtle::moveForward() {
 
     m_pos = m_pos + f_dist/2 * glm::normalize(glm::vec3(fx, fy, fz)); // move forward f-dist/2
 
-//    std::cout << m_pos.x << std::endl;
-//    std::cout << m_pos.y << std::endl;
-//    std::cout << m_pos.z << std::endl;
-
     // m_pos += vec;
 
     //std::cout << "here" << std::endl;
@@ -169,12 +165,23 @@ void Turtle::restore() {
 glm::mat4x4 Turtle::currTransMatrix() {
     glm::mat4x4 scale = glm::scale(glm::vec3(m_thickness, f_dist, m_thickness)); // scales cylinder in y direction by f_dist
 
+    //glm::mat4x4 scale = glm::scale(glm::vec3(f_dist, m_thickness, m_thickness)); // scales cylinder in y direction by f_dist
+
     glm::mat4x4 yaw = glm::rotate(m_yaw, glm::vec3(0, 0, 1));
     glm::mat4x4 pitch = glm::rotate(m_pitch, glm::vec3(0, 1, 0));
     glm::mat4x4 roll = glm::rotate(m_roll, glm::vec3(1, 0, 0));
     glm::mat4x4 rotate = yaw * pitch * roll; // combines axis rotations into one rotation
 
+//    std::cout << m_yaw << std::endl;
+//    std::cout << m_pitch << std::endl;
+//    std::cout << m_roll << std::endl;
+
+    std::cout << m_pos.x << std::endl;
+    std::cout << m_pos.y << std::endl;
+    std::cout << m_pos.z << std::endl;
+
     glm::mat4 trans = glm::translate(glm::vec3(m_pos.x, m_pos.y, m_pos.z)); // translates cylinder to current turtle
 
+    //return scale * rotate * trans;
     return trans * rotate * scale;
 }

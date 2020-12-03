@@ -11,9 +11,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 
-const float theta = M_PI/2;
-const float f_dist = 1;
-const float thickness_mult = 5; // 5% chance in thickness
+const float theta = M_PI/2.0f;
+const float f_dist = 1.0f;
+const float thickness_mult = 5.0f; // 5% chance in thickness
 
 /**
  * citations:
@@ -38,7 +38,7 @@ public:
     float m_thickness; // current thickness of branch
     float m_pitch; // degree of pitch (rotation around x), looking down z-axis
     float m_yaw; // degree of yaw (rotation around y)
-    float m_roll; // degree of roll (rotation aruond z)
+    float m_roll; // degree of roll (rotation around z)
 };
 
 #endif // TURTLE_H

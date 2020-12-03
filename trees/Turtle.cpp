@@ -43,9 +43,11 @@ void Turtle::parseInput(std::string input) {
         // case where command has argument
         if ((i + 3) < inputSize && input[i+1]=='(') {
             executeCommand(command, true, static_cast<float>(input[i+2]));
+            i += 4;
         }
         else {
             executeCommand(command, false, 0);
+            i += 1;
         }
     }
 }

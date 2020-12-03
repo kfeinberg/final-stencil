@@ -57,16 +57,15 @@ void Scene::drawTree() {
     Turtle t = Turtle();
     t.parseInput(res);
 
-    Cylinder tree(20, 20);
+    Cylinder branch(20, 20);
 
     for (glm::mat4x4 mat: t.m_cylinderTransformations) {
          m_shader->setUniform("m", mat);
-         tree.draw();
+         branch.draw();
     }
 }
 
 void Scene::render() {
-    std::cout << "Rendering scene" << std::endl;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -99,13 +98,13 @@ void Scene::render() {
 
     drawTree();
 
-//    m_shader->unbind();
+    m_shader->unbind();
 
-//    // grass primitive
-    //Grass grass;
+    // grass primitive
+//    Grass grass;
 
 //    m_shader->bind();
-    //m_grassTexture->bind();
+//    m_grassTexture->bind();
 
 //    // sending camera matrices to shader
 //    m_shader->setUniform("p", m_camera.getProjectionMatrix());
@@ -122,8 +121,8 @@ void Scene::render() {
 //    // sending primitive color
 //    m_shader->applyMaterial(wood);
 
-    //grass.draw();
+//    grass.draw();
 
-    //m_grassTexture->unbind();
-    m_shader->unbind();
+//    m_grassTexture->unbind();
+//    m_shader->unbind();
 }

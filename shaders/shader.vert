@@ -6,7 +6,7 @@ layout(location = 5) in vec2 texCoord; // UV texture coordinates
 layout(location = 10) in float arrowOffset; // Sideways offset for billboarded normal arrows
 
 out vec3 color; // Computed color for this vertex
-out vec2 texc;
+out vec2 uv;
 
 // Transformation matrices
 uniform mat4 p;
@@ -32,7 +32,7 @@ uniform bool useLighting;     // Whether to calculate lighting using lighting eq
 uniform bool useArrowOffsets; // True if rendering the arrowhead of a normal for Shapes
 
 void main() {
-    texc = texCoord * repeatUV;
+    uv = texCoord;
 
     vec4 position_cameraSpace = v * m * vec4(position, 1.0);
     vec4 normal_cameraSpace = vec4(normalize(mat3(transpose(inverse(v * m))) * normal), 0);

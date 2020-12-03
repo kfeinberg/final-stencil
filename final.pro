@@ -41,6 +41,7 @@ SOURCES += ui/mainwindow.cpp \
     main.cpp \
     glew-1.10.0/src/glew.c \
     scene/Scene.cpp \
+    shapes/Grass.cpp \
     ui/view.cpp \
     ui/viewformat.cpp \
     trees/LSystem.cpp \
@@ -72,6 +73,7 @@ HEADERS += ui/mainwindow.h \
     lib/CS123XmlSceneParser.h \
     lib/ResourceLoader.h \
     scene/Scene.h \
+    shapes/Grass.h \
     ui_mainwindow.h \
     glew-1.10.0/include/GL/glew.h \
     ui/view.h \

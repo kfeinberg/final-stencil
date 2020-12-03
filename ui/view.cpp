@@ -45,9 +45,9 @@ void View::initializeGL() {
 
     // setting OpenGL settings
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    // for the grass trick to work we cannot enable backface culling
     glFrontFace(GL_CCW);
+
 
     // Start a timer that will try to get 60 frames per second (the actual
     // frame rate depends on the operating system and other running programs)

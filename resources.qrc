@@ -5,4 +5,7 @@
         <file alias="test.frag">shaders/test.frag</file>
         <file alias="test.vert">shaders/test.vert</file>
     </qresource>
+    <qresource prefix="/images">
+        <file alias="grass.png">images/grass.png</file>
+    </qresource>
 </RCC>

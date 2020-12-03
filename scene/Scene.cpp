@@ -1,9 +1,14 @@
 #include "Scene.h"
 
+#include <sstream>
+#include <QImage>
+
 #include "lib/ResourceLoader.h"
 #include "lib/CS123SceneData.h"
 #include "shapes/Cylinder.h"
-#include <sstream>
+#include "shapes/Grass.h"
+#include "gl/textures/TextureParameters.h"
+#include "gl/textures/TextureParametersBuilder.h"
 
 #include "gl/GLDebug.h" // useful for debugging shader stuff
 
@@ -15,6 +20,16 @@ Scene::Scene()
     std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/shader.vert");
     std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/shader.frag");
     m_shader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
+
+    // loading grass texture
+    QImage grassImage(":/images/grass.png");
+    std::cout << grassImage.isNull() << std::endl;
+    m_grassTexture = std::make_unique<Texture2D>(grassImage.bits(), grassImage.width(), grassImage.height());
+    TextureParametersBuilder builder;
+    builder.setFilter(TextureParameters::FILTER_METHOD::NEAREST);
+    builder.setWrap(TextureParameters::WRAP_METHOD::CLAMP_TO_EDGE);
+    TextureParameters params = builder.build();
+    params.applyTo(*m_grassTexture.get());
 }
 
 Scene::~Scene()
@@ -27,6 +42,7 @@ Camera *Scene::getCamera() {
 
 void Scene::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // setting camera orientation
     m_camera.orientLook(
@@ -44,14 +60,29 @@ void Scene::render() {
     // creating cylinder
     Cylinder tree(20, 20);
 
+    // grass primitive
+    Grass grass;
+
     m_shader->bind();
-    m_shader->setUniform("useLighting", false); // use only ambient and diffuse color
-    m_shader->setUniform("useArrowOffsets", false); // skip arrow billboarding
-    m_shader->applyMaterial(wood);
+    m_grassTexture->bind();
+
+    // sending camera matrices to shader
     m_shader->setUniform("p", m_camera.getProjectionMatrix());
     m_shader->setUniform("v", m_camera.getViewMatrix());
     m_shader->setUniform("m", glm::mat4(1.0f));
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    tree.draw();
+
+    // setting other shader settings
+    m_shader->setUniform("useLighting", false); // use only ambient and diffuse color
+    m_shader->setUniform("useArrowOffsets", false); // skip arrow billboarding
+
+    // texturing settings
+    m_shader->setUniform("useTexture", true);
+
+    // sending primitive color
+    m_shader->applyMaterial(wood);
+
+    grass.draw();
+
+    m_grassTexture->unbind();
     m_shader->unbind();
 }

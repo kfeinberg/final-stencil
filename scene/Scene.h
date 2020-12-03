@@ -1,8 +1,11 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "gl/shaders/CS123Shader.h"
 #include <memory>
+
+#include "gl/shaders/CS123Shader.h"
+#include "gl/shaders/Shader.h"
+#include "gl/textures/Texture2D.h"
 #include "camera/CamtransCamera.h"
 
 namespace CS123 { namespace GL {
@@ -23,6 +26,7 @@ public:
 
 private:
     std::unique_ptr<CS123::GL::CS123Shader> m_shader;
+    std::unique_ptr<CS123::GL::Texture2D> m_grassTexture;
     CamtransCamera m_camera;
 };
 

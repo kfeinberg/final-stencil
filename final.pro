@@ -126,4 +126,6 @@ DISTFILES += \
     shaders/normals/normalsArrow.frag \
     shaders/normals/normalsArrow.vert \
     shaders/test.frag \
-    shaders/test.vert
+    shaders/test.vert \
+    shaders/volumetric.frag \
+    shaders/volumetric.vert

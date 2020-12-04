@@ -49,12 +49,12 @@ void Scene::drawTree() {
 
     LSystem l = LSystem(rules, "FA");
 
-    std::string res = l.applyRules(12);
+    std::string res = l.applyRules(9);
 
     Turtle t = Turtle();
     t.parseInput(res);
 
-    Cylinder branch(20, 20);
+    Cylinder branch(8, 8);
     Leaf leaf;
 
     for (size_t i = 0; i < t.m_cylinderTransformations.size(); i++) {

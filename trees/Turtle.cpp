@@ -3,11 +3,9 @@
 Turtle::Turtle()
 {
     m_pos = glm::vec3(0.0f, 0.0f, 0.0f);
-    //m_thickness = 0.2f;
-    m_thickness = f_dist * 0.4f;
-    m_roll = 0.0f;
-    m_pitch = 0.0f;
-    m_yaw = M_PI/2.0f; // initialize turtle looking up y-axis
+    m_thickness = f_dist * 0.1f;
+    m_dir = glm::vec3(0.0f, 1.0f, 0.0f);
+    m_right = glm::vec3(1.0f, 0.0f, 0.0f);
 }
 
 /**
@@ -27,7 +25,7 @@ Turtle::Turtle()
  * < : increase thickness (by percent of its own)
  * = : set thickness (to percentage of length)
  * * : draw leaf
- */
+ */ 
 
 
 /**
@@ -59,28 +57,28 @@ void Turtle::executeCommand(char command, bool hasParam, float param) {
             moveForward();
             break;
         case '+':
-            if (hasParam) m_yaw += param * M_PI/180.0f;
-            else m_yaw += theta * M_PI/180.0f;
+            if (hasParam) yawRight(param * M_PI/180.0f);
+            else yawRight(theta * M_PI/180.0f);
             break;
         case '-':
-            if (hasParam) m_yaw -= param * M_PI/180.0f;
-            else m_yaw -= theta * M_PI/180.0f;
+            if (hasParam) yawRight(-(param * M_PI/180.0f));
+            else yawRight(-(theta * M_PI/180.0f));
             break;
         case '&':
-            if (hasParam) m_pitch += param * M_PI/180.0f;
-            else m_pitch += theta * M_PI/180.0f;
+            if (hasParam) pitchUp(param * M_PI/180.0f);
+            else pitchUp(theta * M_PI/180.0f);
             break;
         case '^':
-            if (hasParam) m_pitch -= param * M_PI/180.0f;
-            else m_pitch -= theta * M_PI/180.0f;
+            if (hasParam) pitchUp(-(param * M_PI/180.0f));
+            else pitchUp(-(theta * M_PI/180.0f));
             break;
         case '\\':
-            if (hasParam) m_roll += param * M_PI/180.0f;
-            else m_roll += theta * M_PI/180.0f;
+            if (hasParam) rollRight(param * M_PI/180.0f);
+            else rollRight(theta * M_PI/180.0f);
             break;
         case '/':
-            if (hasParam) m_roll -= param * M_PI/180.0f;
-            else m_roll -= theta * M_PI/180.0f;
+            if (hasParam) rollRight(-(param * M_PI/180.0f));
+            else rollRight(-(theta * M_PI/180.0f));
             break;
         case '[':
             this->save();
@@ -102,36 +100,23 @@ void Turtle::executeCommand(char command, bool hasParam, float param) {
         case '*':
             drawLeaf();
             break;
+        case '|':
+            m_dir = -m_dir;
+            m_right = -m_right;
     }
 }
 
 /**
- * @brief Draw cylinder and move turtle forward.
+ * @brief Save cylinder position and move turtle forward.
  */
 void Turtle::moveForward() {
 
-    // transformation matrix to current turtle position
-
-
-    // calculate forward vector based on yaw, pitch, deg
-    // source: https://stackoverflow.com/questions/1568568/how-to-convert-euler-angles-to-directional-vector
-    float fx = cos(m_yaw) * cos(m_pitch);
-    float fy = sin(m_yaw) * cos(m_pitch);
-    float fz = sin(m_pitch);
-
     // update position vector with forward step
-    m_pos = m_pos + f_dist/2 * glm::normalize(glm::vec3(fx, fy, fz)); // move forward f-dist/2
+    m_pos = m_pos + f_dist/2 * m_dir; // move forward f-dist/2
 
     m_cylinderTransformations.push_back(currTransMatrix());
 
-    m_pos = m_pos + f_dist/2 * glm::normalize(glm::vec3(fx, fy, fz)); // move forward f-dist/2
-
-    // m_pos += vec;
-
-    //std::cout << "here" << std::endl;
-
-
-    //m_cylinderTransformations.push_back(glm::mat4(1.0f));
+    m_pos = m_pos + f_dist/2 * m_dir; // move forward f-dist/2
 }
 
 /**
@@ -158,30 +143,44 @@ void Turtle::restore() {
 
     m_pos = t.m_pos;
     m_thickness = t.m_thickness;
-    m_pitch = t.m_pitch;
-    m_yaw = t.m_yaw;
-    m_roll = t.m_roll;
+    m_dir = t.m_dir;
+    m_right = t.m_right;
 }
 
 glm::mat4x4 Turtle::currTransMatrix() {
     glm::mat4x4 scale = glm::scale(glm::vec3(m_thickness, f_dist, m_thickness)); // scales cylinder in y direction by f_dist
 
-    //glm::mat4x4 scale = glm::scale(glm::vec3(f_dist, m_thickness, m_thickness)); // scales cylinder in y direction by f_dist
-    float cylinderYaw = m_yaw-M_PI/2.0f; // convert from turtle to cylinder
-    glm::mat4x4 roll = glm::rotate(m_roll, glm::vec3(1, 0, 0));
-    glm::mat4x4 pitch = glm::rotate(m_pitch, glm::vec3(0, 1, 0));
-    glm::mat4x4 yaw = glm::rotate(cylinderYaw, glm::vec3(0, 0, 1));
-    glm::mat4x4 rotate = yaw * pitch * roll; // combines axis rotations into one rotation
-
-//    std::cout << m_yaw << std::endl;
-//    std::cout << m_pitch << std::endl;
-//    std::cout << m_roll << std::endl;
-
-//    std::cout << m_pos.x << std::endl;
-//    std::cout << m_pos.y << std::endl;
-//    std::cout << m_pos.z << std::endl;
+    glm::vec3 orig = glm::vec3(0, 1, 0);
+    float theta = acos(glm::dot(orig, m_dir));
+    glm::mat4x4 rotate = glm::rotate(theta, glm::normalize(glm::cross(orig, m_dir)));
 
     glm::mat4 trans = glm::translate(glm::vec3(m_pos.x, m_pos.y, m_pos.z)); // translates cylinder to current turtle
 
     return trans * rotate * scale;
+}
+
+// source: https://github.com/abiusx/L3D/blob/master/src/R3/R3Vector.cpp
+glm::vec3 Turtle::rotate(glm::vec3 vec, glm::vec3 axis, float theta) {
+    float cos_t = cos(theta);
+    float sin_t = sin(theta);
+
+    float dot = glm::dot(vec, axis);
+    glm::vec3 cross = glm::cross(vec, axis);
+
+    glm::vec3 res = vec * cos_t + axis * dot * (1 - cos_t) - cross * sin_t;
+    return res;
+}
+
+void Turtle::yawRight(float theta) {
+    glm::vec3 axis = glm::cross(m_dir, m_right);
+    m_dir = glm::normalize(rotate(m_dir, axis, theta));
+    m_right= glm::normalize(rotate(m_right, axis, theta));
+}
+
+void Turtle::pitchUp(float theta) {
+    m_dir = glm::normalize(rotate(m_dir, m_right, theta));
+}
+
+void Turtle::rollRight(float theta) {
+    m_right = glm::normalize(rotate(m_right, m_dir, theta));
 }

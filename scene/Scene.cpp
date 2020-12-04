@@ -44,31 +44,14 @@ Camera *Scene::getCamera() {
 void Scene::drawTree() {
 
     // source: https://github.com/abiusx/L3D/blob/master/L%2B%2B/tree.l%2B%2B
-//    std::map<char, std::string> rules;
-//    rules['A'] = "^F>(30)B\\B\\\\\B";
-//    rules['B'] = "[^^FL\\\\\\AL]";
-//    rules['L'] = "[^(60)[*(.3)]+(50)*(.28)]";
-
-
-//    std::string res = l.applyRules(10);
-    //std::string res = "F[-F]F[+F]F";
-
-//    std::map<char, std::string> rules;
-//    rules['F'] = "[F[-F]F[+F]F]";
-//    LSystem l = LSystem(rules, "F");
-
-//    std::string res = l.applyRules(5);
-
-//    Turtle t = Turtle();
-//    t.parseInput("F" + res);
-
     std::map<char, std::string> rules;
 
-    rules['F'] = "FF";
-    rules['X'] = "F-[[X]+X]+F[+FX]-X";
-    LSystem l = LSystem(rules, "X");
+    rules['A']="^FB//B/////B";
+    rules['B']="[^^F//////A]";
 
-    std::string res = l.applyRules(4);
+    LSystem l = LSystem(rules, "FA");
+
+    std::string res = l.applyRules(9);
 
     Turtle t = Turtle();
     t.parseInput(res);
@@ -92,7 +75,7 @@ void Scene::render() {
 //                glm::vec4(0.f, 1.f, 0.f, 0.f));
 
     m_camera.orientLook(
-                glm::vec4(0.f, 0.f, 30.f, 1.f),
+                glm::vec4(0.f, 0.f, 20.f, 1.f),
                 glm::vec4(0.f, 0.f, -1.f, 0.f),
                 glm::vec4(0.f, 1.f, 0.f, 0.f));
 
@@ -113,7 +96,7 @@ void Scene::render() {
     m_shader->setUniform("p", m_camera.getProjectionMatrix());
     m_shader->setUniform("v", m_camera.getViewMatrix());
     m_shader->setUniform("m", glm::mat4(1.0f)); // set for each cylinder
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     //tree.draw();
 

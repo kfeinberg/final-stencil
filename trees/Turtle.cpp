@@ -3,7 +3,7 @@
 Turtle::Turtle()
 {
     m_pos = glm::vec3(0.0f, 0.0f, 0.0f);
-    m_thickness = f_dist * 0.1f;
+    m_thickness = f_dist * length_thickness_ratio;
     m_dir = glm::vec3(0.0f, 1.0f, 0.0f);
     m_right = glm::vec3(1.0f, 0.0f, 0.0f);
 }
@@ -115,6 +115,7 @@ void Turtle::moveForward() {
     m_pos = m_pos + f_dist/2 * m_dir; // move forward f-dist/2
 
     m_cylinderTransformations.push_back(currTransMatrix());
+    m_treeComponents.push_back(TreeComponents::BRANCH);
 
     m_pos = m_pos + f_dist/2 * m_dir; // move forward f-dist/2
 }
@@ -123,8 +124,16 @@ void Turtle::moveForward() {
  * @brief Draws leaf at current turtle location.
  */
 void Turtle::drawLeaf() {
-    //Cylinder c(10, 10); //TODO: Find better leaf shape, transform to pos
-    //c.draw();
+    glm::mat4x4 scale = glm::scale(glm::vec3(0.25, 0.25, 1)); // makes a small leaf
+
+    glm::vec3 orig = glm::vec3(0, 1, 0);
+    float theta = acos(glm::dot(orig, m_dir));
+    glm::mat4x4 rotate = glm::rotate(theta, glm::normalize(glm::cross(orig, m_dir)));
+
+    glm::mat4 trans = glm::translate(glm::vec3(m_pos.x, m_pos.y, m_pos.z)); // translates cylinder to current turtle
+
+    m_cylinderTransformations.push_back(trans * rotate * scale);
+    m_treeComponents.push_back(TreeComponents::LEAF);
 }
 
 /**

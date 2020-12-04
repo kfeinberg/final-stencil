@@ -1,19 +1,5 @@
 #include "Scene.h"
 
-#include <sstream>
-#include <QImage>
-
-#include "lib/ResourceLoader.h"
-#include "lib/CS123SceneData.h"
-#include "shapes/Cylinder.h"
-#include "shapes/Grass.h"
-#include "gl/textures/TextureParameters.h"
-#include "gl/textures/TextureParametersBuilder.h"
-#include "trees/LSystem.h"
-#include "trees/Turtle.h"
-
-#include "gl/GLDebug.h" // useful for debugging shader stuff
-
 using namespace CS123::GL;
 
 Scene::Scene()
@@ -31,6 +17,18 @@ Scene::Scene()
     builder.setWrap(TextureParameters::WRAP_METHOD::CLAMP_TO_EDGE);
     TextureParameters params = builder.build();
     params.applyTo(*m_grassTexture.get());
+
+    // set wood material
+    m_woodMaterial.clear();
+    m_woodMaterial.cAmbient.r = 133.f / 255.f;
+    m_woodMaterial.cAmbient.g = 94.f / 255.f;
+    m_woodMaterial.cAmbient.b = 66.f / 255.f;
+
+    // set leaf material
+    m_leafMaterial.clear();
+    m_leafMaterial.cAmbient.r = 14.f / 255.f;
+    m_leafMaterial.cAmbient.g = 107.f / 255.f;
+    m_leafMaterial.cAmbient.b = 14.f / 255.f;
 }
 
 Scene::~Scene()
@@ -46,21 +44,29 @@ void Scene::drawTree() {
     // source: https://github.com/abiusx/L3D/blob/master/L%2B%2B/tree.l%2B%2B
     std::map<char, std::string> rules;
 
-    rules['A']="^FB//B/////B";
+    rules['A']="^FB//B*/////B";
     rules['B']="[^^F//////A]";
 
     LSystem l = LSystem(rules, "FA");
 
-    std::string res = l.applyRules(9);
+    std::string res = l.applyRules(12);
 
     Turtle t = Turtle();
     t.parseInput(res);
 
     Cylinder branch(20, 20);
+    Leaf leaf;
 
-    for (glm::mat4x4 mat: t.m_cylinderTransformations) {
-         m_shader->setUniform("m", mat);
-         branch.draw();
+    for (size_t i = 0; i < t.m_cylinderTransformations.size(); i++) {
+        m_shader->setUniform("m", t.m_cylinderTransformations[i]);
+        if (t.m_treeComponents[i] == TreeComponents::BRANCH) {
+            m_shader->applyMaterial(m_woodMaterial);
+            branch.draw();
+        }
+        else {
+            m_shader->applyMaterial(m_leafMaterial);
+            leaf.draw();
+        }
     }
 }
 
@@ -96,9 +102,12 @@ void Scene::render() {
     m_shader->setUniform("p", m_camera.getProjectionMatrix());
     m_shader->setUniform("v", m_camera.getViewMatrix());
     m_shader->setUniform("m", glm::mat4(1.0f)); // set for each cylinder
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     //tree.draw();
+
+    //Leaf l;
+    //l.draw();
 
     drawTree();
 

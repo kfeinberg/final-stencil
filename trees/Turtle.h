@@ -11,9 +11,16 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 
+// TODO: constants for now, change to parameters
 const float theta = 15;
 const float f_dist = 1.0f;
 const float thickness_mult = 10.0f; // 5% change in thickness
+const float length_thickness_ratio = 0.06f;
+
+enum TreeComponents {
+    BRANCH,
+    LEAF
+};
 
 /**
  * citations:
@@ -36,7 +43,8 @@ public:
     void pitchUp(float theta);
 
     // TODO: public for testing, possibly change to private
-    std::vector<glm::mat4x4> m_cylinderTransformations;
+    std::vector<glm::mat4x4> m_cylinderTransformations; // transformations applied
+    std::vector<TreeComponents> m_treeComponents; // prim to apply transformation to
     std::stack<Turtle>m_states; // retains past state, used for branches
     glm::vec3 m_pos; // current position
     glm::vec3 m_dir; // current direction vector

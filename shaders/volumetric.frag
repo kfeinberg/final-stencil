@@ -1,13 +1,13 @@
 #version 330 core
 
-in vec2 texCoord0; // uv coordinates??
+in vec2 texCoord0; // how to get these 2d coordinates?
 in vec3 vertex; // position of vertex in 3D space
 
-out vec4 fragColor; // color outputted to image
+out vec4 fragColor; // color outputted as reult
 
-uniform sampler2D scene; // scene with objects occluded --> pass through first shader?
 uniform vec3 sunPos; // position of sun on screen
-uniform sampler2D godRaysSampler; // what is this? is this scene without objects occluded?
+uniform sampler2D scene; // real scene with real colors
+uniform sampler2D firstPass; // results from first pass, scene with objects occluded except sun
 
 // constants: can be set or changed to uniform and set in scene
 const float exposure = 0.3f;
@@ -24,11 +24,11 @@ void main(void) {
 
     float illuminationDecay = 1.0f;
 
-    vec4 godRayColor = texture(godRaysSampler, tc.xy)*0.4; // what is this??
+    vec4 godRayColor = texture(firstPass, tc.xy)*0.4; // what is this??
 
     for(int i = 0 ; i< NUM_SAMPLES ; i++) {
             tc-= deltatexCoord;
-            vec4 samp = texture(godRaysSampler , tc )*0.4; // what is this?
+            vec4 samp = texture(firstPass , tc )*0.4; // what is this?
             samp *= illuminationDecay*weight;
             godRayColor += samp;
             illuminationDecay *= decay;

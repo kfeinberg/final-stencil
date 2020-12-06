@@ -14,9 +14,10 @@ Scene::Scene()
     m_shader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
 
     // loading and compiling crepscular ray shader
-    vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/volumetric.vert");
-    fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/volumetric.frag");
-    m_crepscularRayShader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
+    // TODO: why does this throw IO exception?
+    // vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/volumetric.vert");
+    // fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/volumetric.frag");
+    // m_crepscularRayShader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
 
     // loading grass texture
     QImage grassImage(":/images/grass.png");
@@ -55,11 +56,11 @@ Scene::Scene()
     m_quad->buildVAO();
 
     // initialize FBO to hold passes used for crepscular rays
-    // TODO: figure out width and height
-//    m_occludedPass = std::make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY,
-//                                        w, h, TextureParameters::WRAP_METHOD::CLAMP_TO_EDGE);
-//    m_regularPass = std::make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY,
-//                                        w, h, TextureParameters::WRAP_METHOD::CLAMP_TO_EDGE);
+    // TODO: figure out width and height parameters
+    // m_occludedPass = std::make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY,
+                                        // w, h, TextureParameters::WRAP_METHOD::CLAMP_TO_EDGE);
+    // m_regularPass = std::make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY,
+                                        // w, h, TextureParameters::WRAP_METHOD::CLAMP_TO_EDGE);
 }
 
 Scene::~Scene()
@@ -108,7 +109,7 @@ void Scene::crepscularRayPass() {
     m_regularPass->unbind(); // unbind regular scene FBO
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear in between passes
-    m_regularPass->getColorAttachment(0).bind(); // TODO: what does this do?
+    m_regularPass->getColorAttachment(0).bind();
 
     // part 2: render scene with occluded objects
     m_occludedPass->bind();
@@ -117,7 +118,7 @@ void Scene::crepscularRayPass() {
     m_occludedPass->unbind(); // unbind occluded pass scene FBO
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear in between passes
-    m_occludedPass->getColorAttachment(0).bind(); // TODO: what does this do?
+    m_occludedPass->getColorAttachment(0).bind();
 
     // part 3: render combined scenes with crepscular rays
     // shader for crepscular rays

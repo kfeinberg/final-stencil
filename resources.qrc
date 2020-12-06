@@ -4,6 +4,8 @@
         <file alias="shader.vert">shaders/shader.vert</file>
         <file alias="test.frag">shaders/test.frag</file>
         <file alias="test.vert">shaders/test.vert</file>
+        <file alias="volumetric.frag">shaders/volumetric.frag</file>
+        <file alias="volumetric.vert">shaders/volumetric.vert</file>
     </qresource>
     <qresource prefix="/images">
         <file alias="grass.png">images/grass.png</file>

@@ -7,5 +7,5 @@ out vec2 texCoord0;
 
 void main() {
     texCoord0 = uv;
-    gl_Position = vec4(position, 1.f);; //set equal to position, do other
+    gl_Position = vec4(position, 1.f); //set equal to position, do other
 }

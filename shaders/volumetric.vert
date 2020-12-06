@@ -1,16 +1,11 @@
 #version 330 core
 
 layout(location = 0) in vec3 position; // Position of the vertex
-layout(location = 1) in vec3 normal;   // Normal of the vertex
-layout(location = 5) in vec2 texCoord; // UV texture coordinates
+layout(location = 5) in vec2 uv;   // Normal of the vertex
 
-out vec2 texCoord0; // copying github, see if this works
-
-// Transformation matrices
-uniform mat4 model;             // model matrix
-uniform mat4 view;              // view matrix
-uniform mat4 projection;        // projection matrix
+out vec2 texCoord0;
 
 void main() {
-    gl_Position = position; //set equal to position, do other
+    texCoord0 = uv;
+    gl_Position = vec4(position, 1.f);; //set equal to position, do other
 }

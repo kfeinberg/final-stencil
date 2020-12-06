@@ -15,6 +15,7 @@
 #include "lib/CS123SceneData.h"
 #include "shapes/Cylinder.h"
 #include "shapes/Grass.h"
+#include "shapes/Plane.h"
 #include "shapes/Leaf.h"
 #include "shapes/CylinderComponent.h"
 #include "gl/textures/TextureParameters.h"
@@ -36,18 +37,22 @@ public:
     Scene();
     ~Scene();
 
-public:
     void render();
     void drawTree();
     Camera *getCamera();
 
 private:
+    void groundPass();
+    void grassPass();
+
     std::unique_ptr<CS123::GL::CS123Shader> m_shader;
     std::unique_ptr<CS123::GL::Texture2D> m_grassTexture;
     CamtransCamera m_camera;
     CS123SceneMaterial m_woodMaterial;
     CS123SceneMaterial m_leafMaterial;
     CS123SceneMaterial m_occludedMaterial; // black material used for making occluded scene
+    std::unique_ptr<TexturedShape> m_ground;
+    std::unique_ptr<TexturedShape> m_grass;
 };
 
 #endif // SCENE_H

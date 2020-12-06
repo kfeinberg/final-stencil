@@ -1,28 +1,13 @@
 #ifndef GRASS_H
 #define GRASS_H
 
-#include <memory>
-#include <vector>
+#include "TexturedShape.h"
 
-#include "GL/glew.h"
-
-namespace CS123 { namespace GL {
-class VAO;
-}}
-
-class Grass
+class Grass : public TexturedShape
 {
 public:
     Grass();
     ~Grass();
-
-    void draw();
-
-private:
-    void buildVAO();
-
-    std::vector<GLfloat> m_vertexData;
-    std::unique_ptr<CS123::GL::VAO> m_VAO;
 };
 
 #endif // GRASS_H

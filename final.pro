@@ -42,6 +42,8 @@ SOURCES += ui/mainwindow.cpp \
     glew-1.10.0/src/glew.c \
     scene/Scene.cpp \
     shapes/Grass.cpp \
+    shapes/Plane.cpp \
+    shapes/TexturedShape.cpp \
     ui/view.cpp \
     ui/viewformat.cpp \
     trees/LSystem.cpp \
@@ -75,6 +77,8 @@ HEADERS += ui/mainwindow.h \
     lib/ResourceLoader.h \
     scene/Scene.h \
     shapes/Grass.h \
+    shapes/Plane.h \
+    shapes/TexturedShape.h \
     ui_mainwindow.h \
     glew-1.10.0/include/GL/glew.h \
     ui/view.h \

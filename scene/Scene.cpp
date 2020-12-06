@@ -4,6 +4,10 @@ using namespace CS123::GL;
 
 Scene::Scene()
 {
+    // creating primitives
+    m_ground = std::make_unique<Plane>();
+    m_grass = std::make_unique<Grass>();
+
     // loading and compiling shader
     std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/shader.vert");
     std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/shader.frag");
@@ -46,7 +50,6 @@ Camera *Scene::getCamera() {
 }
 
 void Scene::drawTree() {
-
     // source: https://github.com/abiusx/L3D/blob/master/L%2B%2B/tree.l%2B%2B
     std::map<char, std::string> rules;
 
@@ -76,72 +79,52 @@ void Scene::drawTree() {
     }
 }
 
+void Scene::groundPass() {
+    m_shader->bind();
+    m_shader->setUniform("useLighting", false);
+    m_shader->setUniform("useTexture", false);
+    m_shader->setUniform("p", m_camera.getProjectionMatrix());
+    m_shader->setUniform("v", m_camera.getViewMatrix());
+
+    glm::mat4 m;
+    m = m * glm::rotate(glm::half_pi<float>(), glm::vec3(1.f, 0.f, 0.f));
+    m = m * glm::scale(glm::vec3(5.f, 5.f, 1.f));
+
+    m_shader->setUniform("m", m);
+    m_shader->applyMaterial(m_leafMaterial);
+    m_ground->draw();
+    m_shader->unbind();
+}
+
+void Scene::grassPass() {
+    m_shader->bind();
+    m_grassTexture->bind();
+    m_shader->setUniform("useLighting", false);
+    m_shader->setUniform("useTexture", true);
+    m_shader->setUniform("p", m_camera.getProjectionMatrix());
+    m_shader->setUniform("v", m_camera.getViewMatrix());
+
+    glm::mat4 m;
+    m = m * glm::translate(glm::vec3(0.f, .6f, 0.f));
+    m = m * glm::scale(glm::vec3(.5f, .5f, .5f));
+
+    m_shader->setUniform("m", m);
+    m_shader->applyMaterial(m_leafMaterial);
+    m_grass->draw();
+    m_grassTexture->unbind();
+    m_shader->unbind();
+}
+
 void Scene::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // setting camera orientation
-//    m_camera.orientLook(
-//                glm::vec4(2.f, 2.f, 2.f, 1.f),
-//                glm::vec4(-1.f, -1.f, -1.f, 0.f),
-//                glm::vec4(0.f, 1.f, 0.f, 0.f));
-
     m_camera.orientLook(
-                glm::vec4(0.f, 0.f, 20.f, 1.f),
-                glm::vec4(0.f, 0.f, -1.f, 0.f),
-                glm::vec4(0.f, 1.f, 0.f, 0.f));
+                glm::vec4(0.f, 1.f, 2.f, 1.f), // eye position
+                glm::vec4(0.f, 0.f, -1.f, 0.f), // look vector
+                glm::vec4(0.f, 1.f, 0.f, 0.f)); // up vector
 
-    // creating wood material
-    CS123SceneMaterial wood;
-    wood.clear();
-    wood.cAmbient.r = 133.f / 255.f;
-    wood.cAmbient.g = 94.f / 255.f;
-    wood.cAmbient.b = 66.f / 255.f;
-
-    // creating cylinder
-    Cylinder tree(20, 20);
-
-    m_shader->bind();
-    m_shader->setUniform("useLighting", false); // use only ambient and diffuse color
-    m_shader->setUniform("useArrowOffsets", false); // skip arrow billboarding
-    m_shader->applyMaterial(wood);
-    m_shader->setUniform("p", m_camera.getProjectionMatrix());
-    m_shader->setUniform("v", m_camera.getViewMatrix());
-    m_shader->setUniform("m", glm::mat4(1.0f)); // set for each cylinder
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    //tree.draw();
-
-    //Leaf l;
-    //l.draw();
-
-    drawTree();
-
-    m_shader->unbind();
-
-    // grass primitive
-//    Grass grass;
-
-//    m_shader->bind();
-//    m_grassTexture->bind();
-
-//    // sending camera matrices to shader
-//    m_shader->setUniform("p", m_camera.getProjectionMatrix());
-//    m_shader->setUniform("v", m_camera.getViewMatrix());
-//    m_shader->setUniform("m", glm::mat4(1.0f));
-
-//    // setting other shader settings
-//    m_shader->setUniform("useLighting", false); // use only ambient and diffuse color
-//    m_shader->setUniform("useArrowOffsets", false); // skip arrow billboarding
-
-//    // texturing settings
-//    m_shader->setUniform("useTexture", true);
-
-//    // sending primitive color
-//    m_shader->applyMaterial(wood);
-
-//    grass.draw();
-
-//    m_grassTexture->unbind();
-//    m_shader->unbind();
+    groundPass();
+    grassPass();
 }

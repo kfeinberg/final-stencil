@@ -18,6 +18,12 @@ Scene::Scene()
     TextureParameters params = builder.build();
     params.applyTo(*m_grassTexture.get());
 
+    // black material for occluded scene
+    m_occludedMaterial.clear();
+    m_occludedMaterial.cAmbient.r = 0.f;
+    m_occludedMaterial.cAmbient.g = 0.f;
+    m_occludedMaterial.cAmbient.b = 0.f;
+
     // set wood material
     m_woodMaterial.clear();
     m_woodMaterial.cAmbient.r = 133.f / 255.f;

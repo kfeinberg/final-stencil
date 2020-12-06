@@ -128,6 +128,4 @@ DISTFILES += \
     shaders/test.frag \
     shaders/test.vert \
     shaders/volumetric.frag \
-    shaders/volumetric.vert \
-    shaders/first_pass.vert \
-    shaders/first_pass.frag
+    shaders/volumetric.vert

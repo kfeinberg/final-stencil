@@ -47,6 +47,7 @@ private:
     CamtransCamera m_camera;
     CS123SceneMaterial m_woodMaterial;
     CS123SceneMaterial m_leafMaterial;
+    CS123SceneMaterial m_occludedMaterial; // black material used for making occluded scene
 };
 
 #endif // SCENE_H

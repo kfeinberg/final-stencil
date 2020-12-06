@@ -1,7 +1,6 @@
 #version 330 core
 
 in vec2 texCoord0; // how to get these 2d coordinates?
-in vec3 vertex; // position of vertex in 3D space
 
 out vec4 fragColor; // color outputted as reult
 

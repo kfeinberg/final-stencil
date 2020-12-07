@@ -18,7 +18,7 @@ const int NUM_SAMPLES = 120;
 // source: https://lokeshsharma97.wordpress.com/2017/08/04/god-rays-opengl/
 void main(void) {
     vec2 tc = texCoord0.xy;
-    //vec2 deltatexCoord = (tc - (sunPos.xy));
+    //vec2 deltatexCoord = (tc - (sunPos.xy)); // TODO: which version?
     vec2 deltatexCoord = (tc - (sunPos.xy*0.5+0.5));
     deltatexCoord *= 1.0/ float(NUM_SAMPLES) * density;
 

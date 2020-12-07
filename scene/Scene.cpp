@@ -146,7 +146,7 @@ void Scene::crepscularRayPass() {
     m_crepscularRayShader->setTexture("regularScene", m_regularPass->getColorAttachment(0)); // sets regular scene
     m_crepscularRayShader->setTexture("occludedScene", m_occludedPass->getColorAttachment(0));
     // set sun position
-    m_crepscularRayShader->setUniform("sunPos", glm::vec3(0, 1.f, -1.f)); // TODO: update with real sun pos
+    m_crepscularRayShader->setUniform("sunPos", glm::vec3(0, 3.f, -1.f)); // TODO: update with real sun pos
 
     glViewport(0, 0, m_width, m_height);
     m_quad->draw(); // renders combined image with crespcular rays
@@ -170,7 +170,7 @@ void Scene::renderPrimitives(bool occluded) {
     m_shader->setUniform("useTexture", false);
 
     glm::mat4 m;
-    m = m * glm::translate(glm::vec3(0.f, 1.f, -1.f));
+    m = m * glm::translate(glm::vec3(0.f, 3.f, -1.f));
     m = m * glm::scale(glm::vec3(.5f, .5f, .5f));
     m_shader->setUniform("m", m);
     m_shader->applyMaterial(m_whiteMaterial);

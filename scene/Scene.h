@@ -46,9 +46,12 @@ public:
     void crepscularRayPass();
     Camera *getCamera();
 
+    void updateDimensions(int width, int height);
+
 private:
     void groundPass();
     void grassPass();
+    void renderPrimitives(bool occluded);
 
     std::unique_ptr<CS123::GL::CS123Shader> m_shader;
     std::unique_ptr<CS123::GL::Shader> m_crepscularRayShader;
@@ -58,12 +61,17 @@ private:
     CS123SceneMaterial m_woodMaterial;
     CS123SceneMaterial m_leafMaterial;
     CS123SceneMaterial m_occludedMaterial; // black material used for making occluded scene
+    CS123SceneMaterial m_whiteMaterial; // white material used for making sun
+
     std::unique_ptr<TexturedShape> m_ground;
     std::unique_ptr<TexturedShape> m_grass;
 
     std::unique_ptr<OpenGLShape> m_quad;
     std::unique_ptr<CS123::GL::FBO> m_occludedPass; // pass of occluded version of scene
     std::unique_ptr<CS123::GL::FBO> m_regularPass; // normal scene render used for crepscular rays
+
+    int m_width; // width of viewport
+    int m_height; // height of viewport
 
 };
 

@@ -71,6 +71,7 @@ void View::resizeGL(int w, int h) {
     h = static_cast<int>(h / ratio);
     glViewport(0, 0, w, h);
     m_scene->getCamera()->setAspectRatio(static_cast<float>(width()) / static_cast<float>(height()));
+    m_scene->updateDimensions(w, h);
     m_scene->render();
 }
 

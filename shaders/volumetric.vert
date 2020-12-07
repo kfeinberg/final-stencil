@@ -1,7 +1,7 @@
 #version 330 core
 
-layout(location = 0) in vec3 position; // Position of the vertex
-layout(location = 5) in vec2 uv;   // Normal of the vertex
+layout(location = 0) in vec3 position; // Position of the quad
+layout(location = 5) in vec2 uv;   // UV of the quad
 
 out vec2 texCoord0;
 

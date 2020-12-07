@@ -45,7 +45,13 @@ Scene::Scene()
     m_leafMaterial.cAmbient.g = 107.f / 255.f;
     m_leafMaterial.cAmbient.b = 14.f / 255.f;
 
-    // initialize quad used for crepscular rays
+    // set white material
+    m_whiteMaterial.clear();
+    m_whiteMaterial.cAmbient.r = 255.f;
+    m_whiteMaterial.cAmbient.g = 255.f;
+    m_whiteMaterial.cAmbient.b = 255.f;
+
+    // initialize quad used for crepscular ray display
     std::vector<GLfloat> quadData;
     quadData = {-1, 1, 0, 0, 1, -1, -1, 0, 0, 0, 1, 1, 0, 1, 1, 1, -1, 0, 1, 0};
     m_quad = std::make_unique<OpenGLShape>();
@@ -53,17 +59,21 @@ Scene::Scene()
     m_quad->setAttribute(ShaderAttrib::POSITION, 3, 0, VBOAttribMarker::DATA_TYPE::FLOAT, false);
     m_quad->setAttribute(ShaderAttrib::TEXCOORD0, 2, 3*sizeof(GLfloat), VBOAttribMarker::DATA_TYPE::FLOAT, false);
     m_quad->buildVAO();
-
-    // initialize FBO to hold passes used for crepscular rays
-    // TODO: figure out width and height parameters
-     m_occludedPass = std::make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY,
-                                         100, 100, TextureParameters::WRAP_METHOD::CLAMP_TO_EDGE);
-     m_regularPass = std::make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY,
-                                         100, 100, TextureParameters::WRAP_METHOD::CLAMP_TO_EDGE);
 }
 
 Scene::~Scene()
 {
+}
+
+void Scene::updateDimensions(int width, int height) {
+    m_width = width;
+    m_height = height;
+
+    // update FBOs that hold passes used for crepscular rays
+    m_occludedPass = std::make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY,
+                                         m_width, m_height, TextureParameters::WRAP_METHOD::CLAMP_TO_EDGE);
+    m_regularPass = std::make_unique<FBO>(1, FBO::DEPTH_STENCIL_ATTACHMENT::DEPTH_ONLY,
+                                         m_width, m_height, TextureParameters::WRAP_METHOD::CLAMP_TO_EDGE);
 }
 
 Camera *Scene::getCamera() {
@@ -101,67 +111,89 @@ void Scene::drawTree() {
 }
 
 void Scene::crepscularRayPass() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear in between passes
 
     // part 1: render scene normally
     m_regularPass->bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear in between passes
 
-    // TODO: change to render all shapes, not just grass
     // part 1.1: draw all shapes normally with phong shader
-    m_shader->bind();
-
-    CS123SceneLightData l;
-    l.pos = glm::vec4(0,2,0,1);
-    l.type = LightType::LIGHT_POINT;
-    m_shader->setLight(l);
-
-    grassPass();
+    glViewport(0, 0, m_width, m_height); //TODO: do I need this?
+    renderPrimitives(false); // renders normal primitives
     // end of part 1.1
 
     m_regularPass->unbind();
-    m_regularPass->getColorAttachment(0).bind();
     // end of part 1
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear in between passes
 
     // part 2: render scene with occluded objects
     m_occludedPass->bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear in between passes
 
     // part 2.1: draw all shapes with occluded material color with phong shader
-    m_shader->bind();
-    m_shader->setLight(l);
-    m_shader->setUniform("useLighting", true);
-    m_shader->setUniform("useTexture", false);
-    m_shader->setUniform("p", m_camera.getProjectionMatrix());
-    m_shader->setUniform("v", m_camera.getViewMatrix());
-
-    glm::mat4 m;
-    m = m * glm::translate(glm::vec3(0.f, .6f, 0.f));
-    m = m * glm::scale(glm::vec3(.5f, .5f, .5f));
-
-    m_shader->setUniform("m", m);
-    m_shader->applyMaterial(m_occludedMaterial);
-    m_grass->draw();
-    m_shader->unbind();
+    glViewport(0, 0, m_width, m_height);
+    renderPrimitives(true); // renders occluded primitives
     // end of part 2.1
 
     m_occludedPass->unbind(); // unbind occluded pass scene FBO
-    m_occludedPass->getColorAttachment(0).bind();
     // end of part 2
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear in between passes
 
     // part 3: render combined scenes with crepscular rays
-    // shader for crepscular rays
     m_crepscularRayShader->bind();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear in between passes
+
     // sets texture for two previously rendered scenes
     m_crepscularRayShader->setTexture("regularScene", m_regularPass->getColorAttachment(0)); // sets regular scene
     m_crepscularRayShader->setTexture("occludedScene", m_occludedPass->getColorAttachment(0));
     // set sun position
-    m_crepscularRayShader->setUniform("sunPos", glm::vec3(0, 2, 0)); // TODO: update with real sun pos
-    //glViewport(0, 0, m_width, m_height); TODO: do I need this?
+    m_crepscularRayShader->setUniform("sunPos", glm::vec3(0, 1.f, -1.f)); // TODO: update with real sun pos
+
+    glViewport(0, 0, m_width, m_height);
     m_quad->draw(); // renders combined image with crespcular rays
+
     m_crepscularRayShader->unbind();
+}
+
+void Scene::renderPrimitives(bool occluded) {
+
+    CS123SceneLightData l;
+    l.pos = glm::vec4(0,1,0,1);
+    l.type = LightType::LIGHT_POINT;
+
+    m_shader->bind();
+
+    m_shader->setUniform("p", m_camera.getProjectionMatrix());
+    m_shader->setUniform("v", m_camera.getViewMatrix());
+    m_shader->setLight(l);
+
+    m_shader->setUniform("useLighting", true);
+    m_shader->setUniform("useTexture", false);
+
+    glm::mat4 m;
+    m = m * glm::translate(glm::vec3(0.f, 1.f, -1.f));
+    m = m * glm::scale(glm::vec3(.5f, .5f, .5f));
+    m_shader->setUniform("m", m);
+    m_shader->applyMaterial(m_whiteMaterial);
+    Cylinder c(5, 5);
+    c.draw(); // draw sun
+
+    glm::mat4 m2;
+    m2 = m2 * glm::translate(glm::vec3(0.f, .6f, 0.f));
+    m2 = m2 * glm::scale(glm::vec3(.5f, .5f, .5f));
+    m_shader->setUniform("useLighting", true);
+
+    m_shader->setUniform("m", m2);
+    if (occluded) {
+        m_shader->applyMaterial(m_occludedMaterial);
+        m_shader->setUniform("useTexture", false);
+    }
+    else {
+        m_shader->applyMaterial(m_leafMaterial);
+        m_shader->setUniform("useTexture", false);
+    }
+    m_grass->draw(); // draw grass
+    m_grassTexture->unbind();
+    m_shader->unbind();
 }
 
 
@@ -211,7 +243,8 @@ void Scene::render() {
                 glm::vec4(0.f, 0.f, -1.f, 0.f), // look vector
                 glm::vec4(0.f, 1.f, 0.f, 0.f)); // up vector
 
-    groundPass();
-    grassPass();
+    //groundPass();
+    //grassPass();
+    //renderPrimitives(false);
     crepscularRayPass();
 }

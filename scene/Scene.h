@@ -18,6 +18,7 @@
 #include "shapes/Plane.h"
 #include "shapes/Leaf.h"
 #include "shapes/CylinderComponent.h"
+#include "shapes/Sphere.h"
 #include "gl/textures/TextureParameters.h"
 #include "gl/textures/TextureParametersBuilder.h"
 #include "trees/LSystem.h"

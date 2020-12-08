@@ -1,0 +1,21 @@
+#ifndef TREE_H
+#define TREE_H
+
+#include "trees/LSystem.h"
+#include "trees/Turtle.h"
+#include "shapes/Cylinder.h"
+#include "shapes/Leaf.h"
+
+
+class Tree
+{
+public:
+    Tree(std::map<char, std::string> rules, std::string axiom, int depth);
+    std::vector<TreeComponents> getComponents();
+    std::vector<glm::mat4x4>getTranformations();
+private:
+    Turtle m_turtle;
+    LSystem m_lsys;
+};
+
+#endif // TREE_H

@@ -13,10 +13,10 @@
 
 // TODO: constants for now, change to parameters
 const float theta = 15;
-const float f_dist = 1.0f;
+const float f_dist = 0.5f;
 const float thickness_mult = 10.0f; // 5% change in thickness
 const float length_thickness_ratio = 0.06f; // thickness of branch relative to length
-const float leaf_size = .25; // leaf size
+const float leaf_size = .15f; // leaf size
 const float leaf_angle = M_PI/9; // angle of leaf relative to branch
 
 enum TreeComponents {

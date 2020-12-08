@@ -13,7 +13,7 @@ const float exposure = 0.2f;
 const float decay = 0.96815;
 const float density  = 0.926;
 const float weight  = 0.587;
-const int NUM_SAMPLES = 120;
+const int NUM_SAMPLES = 80;
 
 // source: https://lokeshsharma97.wordpress.com/2017/08/04/god-rays-opengl/
 void main(void) {

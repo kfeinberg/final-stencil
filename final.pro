@@ -54,7 +54,8 @@ SOURCES += ui/mainwindow.cpp \
     shapes/Shape.cpp \
     trees/Turtle.cpp \
     shapes/Leaf.cpp \
-    shapes/OpenGLShape.cpp
+    shapes/OpenGLShape.cpp \
+    shapes/Tree.cpp
 
 HEADERS += ui/mainwindow.h \
     camera/Camera.h \
@@ -93,7 +94,8 @@ HEADERS += ui/mainwindow.h \
     shapes/Shape.h \
     trees/Turtle.h \
     shapes/Leaf.h \
-    shapes/OpenGLShape.h
+    shapes/OpenGLShape.h \
+    shapes/Tree.h
 
 FORMS += ui/mainwindow.ui
 INCLUDEPATH += glm ui glew-1.10.0/include

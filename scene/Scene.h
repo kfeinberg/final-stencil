@@ -23,6 +23,7 @@
 #include "gl/textures/TextureParametersBuilder.h"
 #include "trees/LSystem.h"
 #include "trees/Turtle.h"
+#include "shapes/Tree.h"
 #include "gl/datatype/FBO.h"
 #include "shapes/OpenGLShape.h"
 
@@ -43,15 +44,17 @@ public:
     ~Scene();
 
     void render();
-    void drawTree();
     void crepscularRayPass();
     Camera *getCamera();
 
     void updateDimensions(int width, int height);
 
 private:
-    void groundPass();
-    void grassPass();
+    void initializeTrees();
+    void groundPass(bool occluded);
+    void grassPass(bool occluded);
+    void treePass(bool occluded);
+    void sunPass();
     void renderPrimitives(bool occluded);
 
     std::unique_ptr<CS123::GL::CS123Shader> m_shader;
@@ -66,6 +69,10 @@ private:
 
     std::unique_ptr<TexturedShape> m_ground;
     std::unique_ptr<TexturedShape> m_grass;
+    std::unique_ptr<Leaf> m_leaf;
+    std::unique_ptr<Shape> m_branch;
+    std::vector<Tree> m_trees;
+    std::unique_ptr<Sphere> m_sun;
 
     std::unique_ptr<OpenGLShape> m_quad;
     std::unique_ptr<CS123::GL::FBO> m_occludedPass; // pass of occluded version of scene

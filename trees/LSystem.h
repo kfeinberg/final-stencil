@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 /**
  * @brief The LSystem class
@@ -27,12 +28,12 @@ class LSystem
 {
 public:
     LSystem();
-    LSystem(std::map<char, std::string>, std::string);
+    LSystem(std::map<char, std::vector<std::string>>, std::string);
     std::string applyRules(int depth);
-    void setRules(std::map<char, std::string>);
+    void setRules(std::map<char, std::vector<std::string>>);
     void setAxiom(std::string);
 private:
-    std::map<char, std::string> m_rules; // map of rules
+    std::map<char, std::vector<std::string>> m_rules; // map of rules
     std::string m_axiom; // starting word
 
     // TODO: add non-deterministic  rules?

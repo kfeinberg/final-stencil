@@ -81,22 +81,23 @@ Scene::~Scene()
  */
 void Scene::initializeTrees() {
     // source: https://github.com/abiusx/L3D/blob/master/L%2B%2B/tree.l%2B%2B
-    std::map<char, std::string> rules;
+    std::map<char, std::vector<std::string>> rules;
 
-    rules['A']="^FB//B*//*///B";
-    rules['B']="[>^^F*//*//*//A]";
+    rules['A']=std::vector<std::string>{"^FB/*/B*//*///B"};
+    rules['B']=std::vector<std::string>{"[>^^F*//*//*//A]", "[>&F*//*//*//A]"};
 
     std::string axiom = "FA";
 
-    Tree t = Tree(rules, axiom, 11);
+    Tree t = Tree(rules, axiom, 9);
     m_trees.push_back(t);
 
-    axiom = "FFF>FFFA";
-    rules.clear();
-    rules['A']="F[>++Al][>--Al]///A";
-    t = Tree(rules, axiom, 7);
+//    axiom = "FA";
+//    rules['A'] = std::vector<std::string>{"^F>(30)B\\B\\\\\B"};
+//    rules['B'] = std::vector<std::string>{"[^^FL\\\\\\AL]"};
+//    rules['L'] = std::vector<std::string>{"[^(60)[*(.3)]+(50)*(.28)]", "[^(60)*(.3)]", "[&(70)*(.3)]"};
 
-    m_trees.push_back(t);
+//    t = Tree(rules, axiom, 10);
+//    m_trees.push_back(t);
 }
 
 void Scene::updateDimensions(int width, int height) {
@@ -326,4 +327,5 @@ void Scene::render() {
 
     //renderPrimitives(false); // renders all primitives without crepuscular rays
     crepscularRayPass();
+    //treePass(false, glm::mat4x4(1), 0);
 }

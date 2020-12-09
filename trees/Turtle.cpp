@@ -99,9 +99,9 @@ void Turtle::executeCommand(char command, bool hasParam, float param) {
             if (hasParam) m_thickness *= 1+(param/100);
             m_thickness *= 1+(thickness_mult/100);
             break;
-        case '=': // TODO: not implemented yet
-            m_thickness = param/100;
-            break;
+//        case '=': // TODO: not implemented yet
+//            m_thickness = param/100;
+//            break;
         case '*':
             drawLeaf();
             break;

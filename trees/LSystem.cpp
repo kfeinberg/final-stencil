@@ -3,7 +3,7 @@
 LSystem::LSystem()
 {}
 
-LSystem::LSystem(std::map<char, std::string> rules, std::string axiom) {
+LSystem::LSystem(std::map<char, std::vector<std::string>> rules, std::string axiom) {
     m_rules = rules;
     m_axiom = axiom;
 }
@@ -13,7 +13,7 @@ std::string LSystem::applyRules(int depth) {
     std::string curr = m_axiom; // curr string begins as axiom
     std::string next;
 
-    for (int iter = 0; iter < depth; iter ++) { // perform rules depth number of times
+    for (int iter = 0; iter < depth; iter++) { // perform rules depth number of times
 
         next = ""; // reset "next" string
 
@@ -23,7 +23,9 @@ std::string LSystem::applyRules(int depth) {
                 next = next + curr[i];
             }
             else { // if letter has rule, apply rule
-               next = next + m_rules.at(curr[i]);
+               std::vector<std::string> v = m_rules.at(curr[i]);
+               int idx = rand() % (v.size()-1 + 1);
+               next = next + v[idx];
             }
 
         }
@@ -32,7 +34,7 @@ std::string LSystem::applyRules(int depth) {
     return curr;
 }
 
-void LSystem::setRules(std::map<char, std::string> rules) {
+void LSystem::setRules(std::map<char, std::vector<std::string>> rules) {
     m_rules = rules;
 }
 

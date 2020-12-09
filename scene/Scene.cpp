@@ -30,6 +30,12 @@ Scene::Scene()
     TextureParameters params = builder.build();
     params.applyTo(*m_grassTexture.get());
 
+    // setting camera orientation
+    m_camera.orientLook(
+                glm::vec4(0.f, 0.f, 20.f, 1.f), // eye position
+                glm::vec4(0.f, 0.f, -1.f, 0.f), // look vector
+                glm::vec4(0.f, 1.f, 0.f, 0.f)); // up vector
+
     // black material for occluded scene
     m_occludedMaterial.clear();
     m_occludedMaterial.cAmbient.r = 0.f;
@@ -105,7 +111,7 @@ void Scene::updateDimensions(int width, int height) {
                                          m_width, m_height, TextureParameters::WRAP_METHOD::CLAMP_TO_EDGE);
 }
 
-Camera *Scene::getCamera() {
+CamtransCamera *Scene::getCamera() {
     return &m_camera;
 }
 
@@ -266,12 +272,15 @@ void Scene::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    // setting camera orientation
-    m_camera.orientLook(
-                glm::vec4(0.f, 0.f, 20.f, 1.f), // eye position
-                glm::vec4(0.f, 0.f, -1.f, 0.f), // look vector
-                glm::vec4(0.f, 1.f, 0.f, 0.f)); // up vector
-
 
     crepscularRayPass();
+
+    /*
+     * This is just a quick note on how to use the camera, we can delete this before we push the final code.
+     * Up, down, left, right arrow- "moves" the camera in this direction. The camera itself isn't moved, but its
+     * like turning your head in the direction you press on your keyboard.
+     *
+     * W key- moves the camera 1 unit forwards- this actually moves the camera's position
+     * S key- moves the camera 1 unit backwards- also moves the camera
+     */
 }

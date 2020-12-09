@@ -102,9 +102,42 @@ void View::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 void View::keyPressEvent(QKeyEvent *event) {
-    if (event->key() == Qt::Key_Escape) QApplication::quit();
+    int key = event->key();
 
-    // TODO: Handle keyboard presses here
+    if (key == Qt::Key_Escape) QApplication::quit();
+
+    CamtransCamera *camera = m_scene->getCamera();
+    switch (key) {
+        case Qt::Key_Up:
+            camera->rotateU(1.f);
+            break;
+        case Qt::Key_Down:
+            camera->rotateU(-1.f);
+            break;
+        case Qt::Key_Right:
+            camera->rotateV(-1.f);
+            break;
+        case Qt::Key_Left:
+            camera->rotateV(1.f);
+            break;
+    }
+
+    if (key == Qt::Key_W || key == Qt::Key_S) {
+        glm::vec4 pos = camera->getPosition();
+        glm::vec4 dir = -camera->getW();
+        glm::vec4 delta;
+        if (key == Qt::Key_W) {
+            delta = -camera->getW();
+        } else {
+            delta = camera->getW();
+        }
+        camera->orientLook(
+                    pos+delta,
+                    dir,
+                    camera->getV());
+    }
+
+    update();
 }
 
 void View::keyReleaseEvent(QKeyEvent *event) {

@@ -45,7 +45,7 @@ public:
 
     void render();
     void crepscularRayPass();
-    Camera *getCamera();
+    CamtransCamera *getCamera();
 
     void updateDimensions(int width, int height);
 

@@ -84,15 +84,14 @@ void Scene::initializeTrees() {
     std::map<char, std::string> rules;
 
     rules['A']="^FB//B*/////B";
-    rules['B']="[^^F//////A]";
+    rules['B']="[>^^F//////A]";
 
     std::string axiom = "FA";
 
-    Tree t = Tree(rules, axiom, 10);
+    Tree t = Tree(rules, axiom, 11);
     m_trees.push_back(t);
 
     axiom = "FFF>FFFA";
-    //axiom = "F";
     rules.clear();
     rules['A']="F[>++Al][>--Al]///A";
     t = Tree(rules, axiom, 7);
@@ -208,6 +207,7 @@ void Scene::grassPass(bool occluded) {
     }
     else {
         m_shader->applyMaterial(m_leafMaterial);
+        //m_shader->setUniform("isOccluded", false);
     }
 
     m_grass->draw();
@@ -223,28 +223,31 @@ void Scene::treePass(bool occluded) {
     m_shader->setUniform("v", m_camera.getViewMatrix());
 
     Tree curr = m_trees[0];
-    std::vector<glm::mat4x4> trans = curr.getTranformations();
-    std::vector<TreeComponents> comps = curr.getComponents();
+    for (int i = -4; i <= 4; i+=2) {
+        curr.setTreeTransformation(glm::translate(glm::vec3(i, 0, 0)));
+        std::vector<glm::mat4x4> trans = curr.getTranformations();
+        std::vector<TreeComponents> comps = curr.getComponents();
 
-    for (size_t i = 0; i < trans.size(); i++) {
-        m_shader->setUniform("m", trans[i]);
-        if (comps[i] == TreeComponents::BRANCH) {
-            if (occluded) {
-                 m_shader->applyMaterial(m_occludedMaterial);
+        for (size_t i = 0; i < trans.size(); i++) {
+            m_shader->setUniform("m", trans[i]);
+            if (comps[i] == TreeComponents::BRANCH) {
+                if (occluded) {
+                     m_shader->applyMaterial(m_occludedMaterial);
+                }
+                else {
+                    m_shader->applyMaterial(m_woodMaterial);
+                }
+                m_branch->draw();
             }
             else {
-                m_shader->applyMaterial(m_woodMaterial);
+                if (occluded) {
+                     m_shader->applyMaterial(m_occludedMaterial);
+                }
+                else {
+                    m_shader->applyMaterial(m_leafMaterial);
+                }
+                m_leaf->draw();
             }
-            m_branch->draw();
-        }
-        else {
-            if (occluded) {
-                 m_shader->applyMaterial(m_occludedMaterial);
-            }
-            else {
-                m_shader->applyMaterial(m_leafMaterial);
-            }
-            m_leaf->draw();
         }
     }
     m_shader->unbind();
@@ -259,7 +262,7 @@ void Scene::sunPass() {
     m_shader->setUniform("useTexture", false);
 
     glm::mat4 m;
-    m = m * glm::translate(glm::vec3(1.f, 5.3f, -4.f));
+    m = m * glm::translate(glm::vec3(1.f, 5.6f, -4.f));
     m = m * glm::scale(glm::vec3(1.5f, 1.5f, 1.5f));
     m_shader->setUniform("m", m);
     m_shader->applyMaterial(m_whiteMaterial);
@@ -273,6 +276,7 @@ void Scene::render() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 
+    //renderPrimitives(false); // renders all primitives without crepuscular rays
     crepscularRayPass();
 
     /*

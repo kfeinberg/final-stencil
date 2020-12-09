@@ -14,8 +14,8 @@
 // TODO: constants for now, change to parameters
 const float theta = 15;
 const float f_dist = 1.0f;
-const float thickness_mult = 30.0f; // 5% change in thickness
-const float length_thickness_ratio = 0.1f; // thickness of branch relative to length
+const float thickness_mult = 36.0f; // 5% change in thickness
+const float length_thickness_ratio = 0.3f; // thickness of branch relative to length
 const float leaf_size = .15f; // leaf size
 const float leaf_angle = M_PI/9; // angle of leaf relative to branch
 
@@ -32,7 +32,7 @@ class Turtle
 {
 public:
     Turtle();
-    void parseInput(std::string input);
+    void parseInput(std::string input, glm::mat4x4 trans);
     void executeCommand(char c, bool hasParam, float param);
     void moveForward(); // moves turtle forward, draws branch
     void drawLeaf(); // draws leaf at current location
@@ -43,6 +43,7 @@ public:
     void yawRight(float theta);
     void rollRight(float theta);
     void pitchUp(float theta);
+    void resetTurtle(); // resets turtle back to start
 
     std::vector<glm::mat4x4> m_cylinderTransformations; // transformations applied
     std::vector<TreeComponents> m_treeComponents; // prim to apply transformation to
@@ -53,6 +54,7 @@ private:
     glm::vec3 m_dir; // current direction vector
     glm::vec3 m_right; // current "right" vector
     float m_thickness; // current thickness of branch
+    glm::mat4x4 m_sceneTrans; // location of tree in scene
 };
 
 #endif // TURTLE_H

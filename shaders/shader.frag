@@ -7,7 +7,7 @@ out vec4 fragColor;
 
 uniform sampler2D tex;
 uniform bool useTexture;
-uniform bool isOccluded = false;
+uniform bool isOccluded;
 
 void main() {
     if (useTexture) {
@@ -16,7 +16,7 @@ void main() {
             discard;
         }
         if (isOccluded) {
-            fragColor = vec4(0, 0, 0, 255);
+            fragColor = vec4(0.f, 0.f, 0.f, 1.f);
         }
         else {
             fragColor = texColor;

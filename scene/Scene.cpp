@@ -82,7 +82,14 @@ void Scene::initializeTrees() {
 
     std::string axiom = "FA";
 
-    Tree t = Tree(rules, axiom, 11);
+    Tree t = Tree(rules, axiom, 10);
+    m_trees.push_back(t);
+
+    axiom = "FFF>FFFA";
+    //axiom = "F";
+    rules.clear();
+    rules['A']="F[>++Al][>--Al]///A";
+    t = Tree(rules, axiom, 7);
 
     m_trees.push_back(t);
 }
@@ -163,7 +170,7 @@ void Scene::groundPass(bool occluded) {
 
     glm::mat4 m;
     m = m * glm::rotate(glm::half_pi<float>(), glm::vec3(1.f, 0.f, 0.f));
-    m = m * glm::scale(glm::vec3(5.f, 5.f, 1.f));
+    m = m * glm::scale(glm::vec3(5.f, 5.f, 5.f));
 
     m_shader->setUniform("m", m);
     if (occluded) {
@@ -184,16 +191,17 @@ void Scene::grassPass(bool occluded) {
     m_shader->setUniform("v", m_camera.getViewMatrix());
 
     glm::mat4 m;
-    m = m * glm::translate(glm::vec3(0.f, .6f, 0.f));
-    m = m * glm::scale(glm::vec3(.5f, .5f, .5f));
+    m = m * glm::translate(glm::vec3(0.f, 0.5f, 0.f));
+    m = m * glm::scale(glm::vec3(1.f, 1.f, 1.f));
     m_shader->setUniform("m", m);
+    m_shader->setUniform("useTexture", true);
 
     if (occluded) {
         m_shader->applyMaterial(m_occludedMaterial);
+        m_shader->setUniform("isOccluded", true);
     }
     else {
         m_shader->applyMaterial(m_leafMaterial);
-        m_shader->setUniform("useTexture", true);
     }
 
     m_grass->draw();
@@ -233,7 +241,6 @@ void Scene::treePass(bool occluded) {
             m_leaf->draw();
         }
     }
-
     m_shader->unbind();
 }
 
@@ -246,7 +253,7 @@ void Scene::sunPass() {
     m_shader->setUniform("useTexture", false);
 
     glm::mat4 m;
-    m = m * glm::translate(glm::vec3(1.f, 3.8f, -1.f));
+    m = m * glm::translate(glm::vec3(1.f, 5.3f, -4.f));
     m = m * glm::scale(glm::vec3(1.5f, 1.5f, 1.5f));
     m_shader->setUniform("m", m);
     m_shader->applyMaterial(m_whiteMaterial);
@@ -261,7 +268,7 @@ void Scene::render() {
 
     // setting camera orientation
     m_camera.orientLook(
-                glm::vec4(0.f, 1.f, 7.f, 1.f), // eye position
+                glm::vec4(0.f, 0.f, 20.f, 1.f), // eye position
                 glm::vec4(0.f, 0.f, -1.f, 0.f), // look vector
                 glm::vec4(0.f, 1.f, 0.f, 0.f)); // up vector
 

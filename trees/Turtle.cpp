@@ -6,6 +6,8 @@ Turtle::Turtle()
     m_thickness = f_dist * length_thickness_ratio;
     m_dir = glm::vec3(0.0f, 1.0f, 0.0f);
     m_right = glm::vec3(1.0f, 0.0f, 0.0f);
+    m_cylinderTransformations.clear();
+    m_treeComponents.clear();
 }
 
 /**
@@ -111,12 +113,12 @@ void Turtle::executeCommand(char command, bool hasParam, float param) {
 void Turtle::moveForward() {
 
     // update position vector with forward step
-    m_pos = m_pos + f_dist/2 * m_dir; // move forward f-dist/2
+    m_pos = m_pos + f_dist/2.0f * m_dir; // move forward f-dist/2
 
     m_cylinderTransformations.push_back(currTransMatrix());
     m_treeComponents.push_back(TreeComponents::BRANCH);
 
-    m_pos = m_pos + f_dist/2 * m_dir; // move forward f-dist/2
+    m_pos = m_pos + f_dist/2.0f * m_dir; // move forward f-dist/2
 }
 
 /**
@@ -162,8 +164,19 @@ glm::mat4x4 Turtle::currTransMatrix() {
     float theta = acos(glm::dot(orig, m_dir));
     glm::mat4x4 rotate = glm::rotate(theta, glm::normalize(glm::cross(orig, m_dir)));
 
+//    std::cout << theta << std::endl;
+
+//    std::cout << m_pos.x << std::endl;
+//    std::cout << m_pos.y << std::endl;
+//    std::cout << m_pos.z << std::endl;
+
+//    std::cout << m_cylinderTransformations.size() << std::endl;
+
     glm::mat4 trans = glm::translate(glm::vec3(m_pos.x, m_pos.y, m_pos.z)); // translates cylinder to current turtle
 
+    if (theta == 0) {
+        return trans * scale;
+    }
     return trans * rotate * scale;
 }
 

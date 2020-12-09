@@ -2,7 +2,6 @@
 
 Tree::Tree(std::map<char, std::string> rules, std::string axiom, int depth) {
     m_lsys = LSystem(rules, axiom);
-
     std::string res = m_lsys.applyRules(depth);
     m_turtle.parseInput(res);
 }

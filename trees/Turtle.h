@@ -13,9 +13,9 @@
 
 // TODO: constants for now, change to parameters
 const float theta = 15;
-const float f_dist = 0.5f;
-const float thickness_mult = 10.0f; // 5% change in thickness
-const float length_thickness_ratio = 0.06f; // thickness of branch relative to length
+const float f_dist = 1.0f;
+const float thickness_mult = 30.0f; // 5% change in thickness
+const float length_thickness_ratio = 0.1f; // thickness of branch relative to length
 const float leaf_size = .15f; // leaf size
 const float leaf_angle = M_PI/9; // angle of leaf relative to branch
 
@@ -44,9 +44,10 @@ public:
     void rollRight(float theta);
     void pitchUp(float theta);
 
-    // TODO: public for testing, possibly change to private
     std::vector<glm::mat4x4> m_cylinderTransformations; // transformations applied
     std::vector<TreeComponents> m_treeComponents; // prim to apply transformation to
+
+private:
     std::stack<Turtle>m_states; // retains past state, used for branches
     glm::vec3 m_pos; // current position
     glm::vec3 m_dir; // current direction vector

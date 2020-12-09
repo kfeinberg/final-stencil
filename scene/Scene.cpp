@@ -7,7 +7,7 @@ Scene::Scene()
     // creating primitives
     m_ground = std::make_unique<Plane>();
     m_grass = std::make_unique<Grass>();
-    m_branch = std::make_unique<Cylinder>(8, 8);
+    m_branch = std::make_unique<Cylinder>(1, 4);
     m_leaf = std::make_unique<Leaf>();
     m_sun = std::make_unique<Sphere>(8, 8);
 
@@ -83,8 +83,8 @@ void Scene::initializeTrees() {
     // source: https://github.com/abiusx/L3D/blob/master/L%2B%2B/tree.l%2B%2B
     std::map<char, std::string> rules;
 
-    rules['A']="^FB//B*/////B";
-    rules['B']="[>^^F//////A]";
+    rules['A']="^FB//B*//*///B";
+    rules['B']="[>^^F*//*//*//A]";
 
     std::string axiom = "FA";
 
@@ -158,11 +158,29 @@ void Scene::crepscularRayPass() {
 }
 
 void Scene::renderPrimitives(bool occluded) {
-    // TODO: move primitives around!
-    grassPass(occluded);
-    groundPass(occluded);
-    treePass(occluded);
+
+    // carpets grass
+    // TODO: find different method of displaying grass?
+    float step = 0.4f;
+    for (float x = -5; x <= 5; x+=step) {
+        for (float z = -5; z <= 5; z+=step) {
+            float x_coord = scatterPoint(x, step/3.0f);
+            float z_coord = scatterPoint(z, step/3.0f);
+            grassPass(occluded, glm::translate(glm::vec3(x, 0.f, z)));
+        }
+    }
+
+    step = 4.0f;
+    for (int x = -4; x <= 4; x+=4) {
+        for (float z = -4; z <= 4; z+=4) {
+            float x_coord = scatterPoint(x, step/2.0f);
+            float z_coord = scatterPoint(z, step/2.0f);
+            treePass(occluded, glm::translate(glm::vec3(x_coord, 0, z_coord)), 0);
+        }
+    }
+
     sunPass();
+    groundPass(occluded);
 }
 
 
@@ -188,16 +206,22 @@ void Scene::groundPass(bool occluded) {
     m_shader->unbind();
 }
 
-void Scene::grassPass(bool occluded) {
+void Scene::grassPass(bool occluded, glm::mat4x4 trans) {
     m_shader->bind();
     m_grassTexture->bind();
     m_shader->setUniform("useLighting", false);
     m_shader->setUniform("p", m_camera.getProjectionMatrix());
     m_shader->setUniform("v", m_camera.getViewMatrix());
 
+    // randomly rotate patch of grass around y-axis
+    float theta = (((float) rand()) / (float) RAND_MAX) * M_2_PI;
+
     glm::mat4 m;
-    m = m * glm::translate(glm::vec3(0.f, 0.5f, 0.f));
-    m = m * glm::scale(glm::vec3(1.f, 1.f, 1.f));
+    m = m * trans;
+    if (theta != 0.0f) {
+        m = m * glm::rotate(theta, glm::vec3(0, 1, 0));
+    }
+    m = m * glm::scale(glm::vec3(.8f, .8f, .8f));
     m_shader->setUniform("m", m);
     m_shader->setUniform("useTexture", true);
 
@@ -215,39 +239,56 @@ void Scene::grassPass(bool occluded) {
     m_shader->unbind();
 }
 
-void Scene::treePass(bool occluded) {
+// Source: https://www.gamasutra.com/view/feature/130071/random_scattering_creating_.php?page=2
+/**
+ * @brief CreateScatter randomly scatters curr to have value curr-scatter < ret < curr+scatter
+ * @param cur current point value.
+ * @param scatter amount to scatter curr by
+ * @return new scattered value
+ */
+float Scene::scatterPoint(float curr, float scatter) {
+    float r = (((float) rand()) / (float) RAND_MAX) * 2 * scatter + -scatter;
+    return curr + r;
+}
+
+/**
+ * @brief Scene::treePass draws one tree in the scene.
+ * @param occluded: if the tree should be occluded or not
+ * @param trans: translation of the tree
+ * @param t: integer for which tree to draw
+ */
+void Scene::treePass(bool occluded, glm::mat4x4 trans, int t) {
     m_shader->bind();
     m_shader->setUniform("useLighting", false);
     m_shader->setUniform("useTexture", false);
     m_shader->setUniform("p", m_camera.getProjectionMatrix());
     m_shader->setUniform("v", m_camera.getViewMatrix());
 
-    Tree curr = m_trees[0];
-    for (int i = -4; i <= 4; i+=2) {
-        curr.setTreeTransformation(glm::translate(glm::vec3(i, 0, 0)));
-        std::vector<glm::mat4x4> trans = curr.getTranformations();
-        std::vector<TreeComponents> comps = curr.getComponents();
+    Tree curr = m_trees[t];
+    curr.setTreeTransformation(trans);
 
-        for (size_t i = 0; i < trans.size(); i++) {
-            m_shader->setUniform("m", trans[i]);
-            if (comps[i] == TreeComponents::BRANCH) {
-                if (occluded) {
-                     m_shader->applyMaterial(m_occludedMaterial);
-                }
-                else {
-                    m_shader->applyMaterial(m_woodMaterial);
-                }
-                m_branch->draw();
+    std::vector<glm::mat4x4> cyl_trans = curr.getTranformations();
+    std::vector<TreeComponents> comps = curr.getComponents();
+
+    for (size_t i = 0; i < cyl_trans.size(); i++) {
+        m_shader->setUniform("m", cyl_trans[i]);
+        if (comps[i] == TreeComponents::BRANCH) {
+            if (occluded) {
+                 m_shader->applyMaterial(m_occludedMaterial);
             }
             else {
-                if (occluded) {
-                     m_shader->applyMaterial(m_occludedMaterial);
-                }
-                else {
-                    m_shader->applyMaterial(m_leafMaterial);
-                }
-                m_leaf->draw();
+                m_shader->applyMaterial(m_woodMaterial);
             }
+            m_branch->draw();
+        }
+        else {
+            if (occluded) {
+                 m_shader->applyMaterial(m_occludedMaterial);
+            }
+            else {
+                m_shader->applyMaterial(m_leafMaterial);
+            }
+            m_leaf->draw();
         }
     }
     m_shader->unbind();
@@ -263,7 +304,7 @@ void Scene::sunPass() {
 
     glm::mat4 m;
     m = m * glm::translate(glm::vec3(1.f, 5.6f, -4.f));
-    m = m * glm::scale(glm::vec3(1.5f, 1.5f, 1.5f));
+    m = m * glm::scale(glm::vec3(2.0f, 2.0f, 2.0f));
     m_shader->setUniform("m", m);
     m_shader->applyMaterial(m_whiteMaterial);
     m_sun->draw();
@@ -271,20 +312,18 @@ void Scene::sunPass() {
     m_shader->unbind();
 }
 
+/*
+ * This is just a quick note on how to use the camera, we can delete this before we push the final code.
+ * Up, down, left, right arrow- "moves" the camera in this direction. The camera itself isn't moved, but its
+ * like turning your head in the direction you press on your keyboard.
+ *
+ * W key- moves the camera 1 unit forwards- this actually moves the camera's position
+ * S key- moves the camera 1 unit backwards- also moves the camera
+ */
 void Scene::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-
     //renderPrimitives(false); // renders all primitives without crepuscular rays
     crepscularRayPass();
-
-    /*
-     * This is just a quick note on how to use the camera, we can delete this before we push the final code.
-     * Up, down, left, right arrow- "moves" the camera in this direction. The camera itself isn't moved, but its
-     * like turning your head in the direction you press on your keyboard.
-     *
-     * W key- moves the camera 1 unit forwards- this actually moves the camera's position
-     * S key- moves the camera 1 unit backwards- also moves the camera
-     */
 }

@@ -52,10 +52,11 @@ public:
 private:
     void initializeTrees();
     void groundPass(bool occluded);
-    void grassPass(bool occluded);
-    void treePass(bool occluded);
+    void grassPass(bool occluded, glm::mat4x4 trans);
+    void treePass(bool occluded, glm::mat4x4 trans, int t);
     void sunPass();
     void renderPrimitives(bool occluded);
+    float scatterPoint(float cur, float scatter);
 
     std::unique_ptr<CS123::GL::CS123Shader> m_shader;
     std::unique_ptr<CS123::GL::Shader> m_crepscularRayShader;

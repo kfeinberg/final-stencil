@@ -159,8 +159,8 @@ void Scene::crepscularRayPass() {
 
 void Scene::renderPrimitives(bool occluded) {
 
-    // carpets grass
     // TODO: find different method of displaying grass?
+    // carpets grass for ground
     float step = 0.4f;
     for (float x = -5; x <= 5; x+=step) {
         for (float z = -5; z <= 5; z+=step) {
@@ -170,6 +170,7 @@ void Scene::renderPrimitives(bool occluded) {
         }
     }
 
+    // distributes scene semi-randomly around scene
     step = 4.0f;
     for (int x = -4; x <= 4; x+=4) {
         for (float z = -4; z <= 4; z+=4) {
@@ -182,7 +183,6 @@ void Scene::renderPrimitives(bool occluded) {
     sunPass();
     groundPass(occluded);
 }
-
 
 void Scene::groundPass(bool occluded) {
     m_shader->bind();

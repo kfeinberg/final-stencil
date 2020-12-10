@@ -38,7 +38,7 @@ Scene::Scene()
     params = builder.build();
     params.applyTo(*m_soilTexture.get());
 
-    // loading bark texture
+    // loading sky texture
     QImage skyImage(":/images/sky1.png");
     m_skyTexture = std::make_unique<Texture2D>(skyImage.bits(), skyImage.width(), skyImage.height());
     builder.setFilter(TextureParameters::FILTER_METHOD::NEAREST);
@@ -209,6 +209,8 @@ void Scene::initializeTreePositions() {
     // top section
     for (int x = -10; x <= 10; x+=2.5) {
         for (int z = -16; z <= -8; z+=2.5) {
+
+            // generate tree locations with semi randomness
             float x_coord = scatterPoint(x, 1.2f);
             float z_coord = scatterPoint(z, 1.2f);
             m_treeTrans.push_back(glm::translate(glm::vec3(x_coord, 0.f, z_coord)));
@@ -302,6 +304,8 @@ void Scene::groundPass(bool occluded) {
     m_ground->draw();
 
     // side
+    m_shader->setUniform("useTexture", true);
+    m_shader->setUniform("repeat", 1.f);
     m_skyTexture->bind();
     m = glm::translate(glm::vec3(0.f, skyBoxDim/2.f, -skyBoxDim/2.f));
     m = m * glm::scale(glm::vec3(skyBoxDim, skyBoxDim, 0.f));
@@ -310,11 +314,11 @@ void Scene::groundPass(bool occluded) {
          m_shader->applyMaterial(m_occludedMaterial);
     }
     else {
-        m_shader->applyMaterial(m_skyMaterial);
-        m_shader->setUniform("useTexture", true);
+        m_shader->applyMaterial(m_whiteMaterial);
     }
     m_ground->draw();
     m_skyTexture->unbind();
+    m_shader->setUniform("useTexture", false);
 
     // side
     m = glm::translate(glm::vec3(0.f, skyBoxDim/2.f, skyBoxDim/2.f));

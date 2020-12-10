@@ -69,6 +69,7 @@ private:
 
     std::unique_ptr<CS123::GL::Texture2D> m_grassTexture;
     std::unique_ptr<CS123::GL::Texture2D> m_barkTexture;
+    std::unique_ptr<CS123::GL::Texture2D> m_soilTexture;
 
     CamtransCamera m_camera;
     CS123SceneMaterial m_woodMaterial;

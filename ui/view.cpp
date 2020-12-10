@@ -48,7 +48,6 @@ void View::initializeGL() {
     // for the grass trick to work we cannot enable backface culling
     glFrontFace(GL_CCW);
 
-
     // Start a timer that will try to get 60 frames per second (the actual
     // frame rate depends on the operating system and other running programs)
     m_time.start();

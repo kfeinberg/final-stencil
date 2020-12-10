@@ -30,6 +30,14 @@ Scene::Scene()
     TextureParameters params = builder.build();
     params.applyTo(*m_grassTexture.get());
 
+    // loading soil texture
+    QImage soilImage(":/images/soil.png");
+    m_soilTexture = std::make_unique<Texture2D>(soilImage.bits(), soilImage.width(), soilImage.height());
+    builder.setFilter(TextureParameters::FILTER_METHOD::LINEAR);
+    builder.setWrap(TextureParameters::WRAP_METHOD::REPEAT);
+    params = builder.build();
+    params.applyTo(*m_soilTexture.get());
+
     // loading bark texture
     QImage barkImage(":/images/bark.jpg");
     m_barkTexture = std::make_unique<Texture2D>(barkImage.bits(), barkImage.width(), barkImage.height());
@@ -242,8 +250,9 @@ void Scene::renderPrimitives(bool occluded) {
     for (glm::mat4x4 trans: m_grassTrans) {
         grassPass(occluded, trans);
     }
-    groundPass(occluded);
+
     sunPass();
+    groundPass(occluded);
 }
 
 void Scene::groundPass(bool occluded) {
@@ -254,6 +263,9 @@ void Scene::groundPass(bool occluded) {
     m_shader->setUniform("v", m_camera.getViewMatrix());
 
     // ground
+    m_shader->setUniform("useTexture", true);
+    m_shader->setUniform("repeat", 32.f);
+    m_soilTexture->bind();
     glm::mat4 m;
     m = m * glm::rotate(glm::half_pi<float>(), glm::vec3(1.f, 0.f, 0.f));
     m = m * glm::scale(glm::vec3(skyBoxDim, skyBoxDim, 0.f));
@@ -265,6 +277,8 @@ void Scene::groundPass(bool occluded) {
         m_shader->applyMaterial(m_leafMaterial);
     }
     m_ground->draw();
+    m_soilTexture->unbind();
+    m_shader->setUniform("useTexture", false);
 
     // top
     m = glm::translate(glm::vec3(0.f, skyBoxDim/2.f, 0.f));
@@ -337,6 +351,7 @@ void Scene::grassPass(bool occluded, glm::mat4x4 trans) {
     m_grassTexture->bind();
     m_shader->setUniform("useLighting", true);
     m_shader->setUniform("useTexture", true);
+    m_shader->setUniform("repeat", 1.f);
     m_shader->setUniform("p", m_camera.getProjectionMatrix());
     m_shader->setUniform("v", m_camera.getViewMatrix());
     m_shader->setUniform("m", trans);

@@ -8,10 +8,11 @@ out vec4 fragColor;
 uniform sampler2D tex;
 uniform bool useTexture;
 uniform bool isOccluded;
+uniform float repeat;
 
 void main() {
     if (useTexture) {
-        vec4 texColor = texture(tex, uv);
+        vec4 texColor = texture(tex, repeat*uv);
         if (texColor.a < 0.1) {
             discard;
         }

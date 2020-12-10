@@ -225,10 +225,6 @@ void Scene::initializeGrassPositions() {
 
 void Scene::renderPrimitives(bool occluded) {
 
-//    for (glm::mat4x4 trans: m_grassTrans) {
-//        grassPass(occluded, trans);
-//    }
-
     for (glm::mat4x4 trans: m_treeTrans) {
         treePass(occluded, trans, 0);
     }

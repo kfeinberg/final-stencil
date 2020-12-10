@@ -19,7 +19,7 @@ Scene::Scene()
     // loading and compiling crepscular ray shader
     vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/volumetric.vert");
     fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/volumetric.frag");
-    m_crepscularRayShader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
+    m_crepscularRayShader = std::make_unique<Shader>(vertexSource, fragmentSource);
 
     // loading grass texture
     QImage grassImage(":/images/grass.png");
@@ -131,7 +131,6 @@ CamtransCamera *Scene::getCamera() {
 }
 
 void Scene::crepscularRayPass() {
-
     // part 1: render scene normally
     m_regularPass->bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear in between passes
@@ -161,11 +160,11 @@ void Scene::crepscularRayPass() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear in between passes
 
     // sets texture for two previously rendered scenes
-    m_crepscularRayShader->setTexture("regularScene", m_regularPass->getColorAttachment(0)); // sets regular scene
     m_crepscularRayShader->setTexture("occludedScene", m_occludedPass->getColorAttachment(0));
+    m_crepscularRayShader->setTexture("regularScene", m_regularPass->getColorAttachment(0)); // sets regular scene
+
     // set sun position
     m_crepscularRayShader->setUniform("sunPos", glm::vec3(0.f, .8f, -1.f)); // TODO: update with real sun pos
-
     glViewport(0, 0, m_width, m_height);
     m_quad->draw(); // renders combined image with crespcular rays
 
@@ -237,13 +236,14 @@ void Scene::initializeGrassPositions() {
 }
 
 void Scene::renderPrimitives(bool occluded) {
-
     for (int i = 0; i < m_treeTrans.size(); i++) {
         treePass(occluded, i%5, m_treeTrans[i]);
     }
-
-    sunPass();
+    for (glm::mat4x4 trans: m_grassTrans) {
+        grassPass(occluded, trans);
+    }
     groundPass(occluded);
+    sunPass();
 }
 
 void Scene::groundPass(bool occluded) {
@@ -336,12 +336,10 @@ void Scene::grassPass(bool occluded, glm::mat4x4 trans) {
     m_shader->bind();
     m_grassTexture->bind();
     m_shader->setUniform("useLighting", true);
+    m_shader->setUniform("useTexture", true);
     m_shader->setUniform("p", m_camera.getProjectionMatrix());
     m_shader->setUniform("v", m_camera.getViewMatrix());
-
-
     m_shader->setUniform("m", trans);
-    m_shader->setUniform("useTexture", true);
 
     if (occluded) {
         m_shader->applyMaterial(m_occludedMaterial);
@@ -469,7 +467,4 @@ void Scene::render() {
 
     //renderPrimitives(false); // renders all primitives without crepuscular rays
     crepscularRayPass();
-//    for (glm::mat4x4 trans: m_grassTrans) {
-//        grassPass(false, trans);
-//    }
 }

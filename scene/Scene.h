@@ -28,8 +28,7 @@
 
 #include "gl/GLDebug.h" // useful for debugging shader stuff
 
-const int minBound = -10;
-const int maxBound = 10;
+const float skyBoxDim = 50;
 
 class OpenGLShape;
 
@@ -77,6 +76,7 @@ private:
     CS123SceneMaterial m_leafMaterial;
     CS123SceneMaterial m_occludedMaterial; // black material used for making occluded scene
     CS123SceneMaterial m_whiteMaterial; // white material used for making sun
+    CS123SceneMaterial m_skyMaterial; // color of sky box
 
     std::unique_ptr<TexturedShape> m_ground;
     std::unique_ptr<TexturedShape> m_grass;

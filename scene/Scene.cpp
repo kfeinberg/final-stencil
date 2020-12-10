@@ -7,7 +7,7 @@ Scene::Scene()
     // creating primitives
     m_ground = std::make_unique<Plane>();
     m_grass = std::make_unique<Grass>();
-    m_branch = std::make_unique<Cylinder>(1, 4);
+    m_branch = std::make_unique<Cylinder>(1, 8);
     m_leaf = std::make_unique<Leaf>();
     m_sun = std::make_unique<Sphere>(8, 8);
 
@@ -69,6 +69,12 @@ Scene::Scene()
     m_whiteMaterial.cAmbient.r = 255.f;
     m_whiteMaterial.cAmbient.g = 255.f;
     m_whiteMaterial.cAmbient.b = 255.f;
+
+    // set sky material
+    m_skyMaterial.clear();
+    m_skyMaterial.cAmbient.r = 135.f / 255.f;
+    m_skyMaterial.cAmbient.g = 206.f / 255.f;
+    m_skyMaterial.cAmbient.b = 250.f / 255.f;
 
     // initialize quad used for crepscular ray display
     std::vector<GLfloat> quadData;
@@ -158,7 +164,7 @@ void Scene::crepscularRayPass() {
     m_crepscularRayShader->setTexture("regularScene", m_regularPass->getColorAttachment(0)); // sets regular scene
     m_crepscularRayShader->setTexture("occludedScene", m_occludedPass->getColorAttachment(0));
     // set sun position
-    m_crepscularRayShader->setUniform("sunPos", glm::vec3(0, .8f, -1.f)); // TODO: update with real sun pos
+    m_crepscularRayShader->setUniform("sunPos", glm::vec3(0.f, .8f, -1.f)); // TODO: update with real sun pos
 
     glViewport(0, 0, m_width, m_height);
     m_quad->draw(); // renders combined image with crespcular rays
@@ -247,10 +253,10 @@ void Scene::groundPass(bool occluded) {
     m_shader->setUniform("p", m_camera.getProjectionMatrix());
     m_shader->setUniform("v", m_camera.getViewMatrix());
 
+    // ground
     glm::mat4 m;
     m = m * glm::rotate(glm::half_pi<float>(), glm::vec3(1.f, 0.f, 0.f));
-    m = m * glm::scale(glm::vec3(38.f, 38.f, 38.f));
-
+    m = m * glm::scale(glm::vec3(skyBoxDim, skyBoxDim, 0.f));
     m_shader->setUniform("m", m);
     if (occluded) {
          m_shader->applyMaterial(m_occludedMaterial);
@@ -259,6 +265,70 @@ void Scene::groundPass(bool occluded) {
         m_shader->applyMaterial(m_leafMaterial);
     }
     m_ground->draw();
+
+    // top
+    m = glm::translate(glm::vec3(0.f, skyBoxDim/2.f, 0.f));
+    m = m * glm::rotate(glm::half_pi<float>(), glm::vec3(1.f, 0.f, 0.f));
+    m = m * glm::scale(glm::vec3(skyBoxDim, skyBoxDim, 0.f));
+    m_shader->setUniform("m", m);
+    if (occluded) {
+         m_shader->applyMaterial(m_occludedMaterial);
+    }
+    else {
+        m_shader->applyMaterial(m_skyMaterial);
+    }
+    m_ground->draw();
+
+    // side
+    m = glm::translate(glm::vec3(0.f, skyBoxDim/2.f, -skyBoxDim/2.f));
+    m = m * glm::scale(glm::vec3(skyBoxDim, skyBoxDim, 0.f));
+    m_shader->setUniform("m", m);
+    if (occluded) {
+         m_shader->applyMaterial(m_occludedMaterial);
+    }
+    else {
+        m_shader->applyMaterial(m_skyMaterial);
+    }
+    m_ground->draw();
+
+    // side
+    m = glm::translate(glm::vec3(0.f, skyBoxDim/2.f, skyBoxDim/2.f));
+    m = m * glm::scale(glm::vec3(skyBoxDim, skyBoxDim, 0.f));
+    m_shader->setUniform("m", m);
+    if (occluded) {
+         m_shader->applyMaterial(m_occludedMaterial);
+    }
+    else {
+        m_shader->applyMaterial(m_skyMaterial);
+    }
+    m_ground->draw();
+
+    // side
+    m = glm::translate(glm::vec3(skyBoxDim/2.f, skyBoxDim/2.f, 0.f));
+    m = m * glm::rotate(glm::half_pi<float>(), glm::vec3(0.f, 1.f, 0.f));
+    m = m * glm::scale(glm::vec3(skyBoxDim, skyBoxDim, 0.f));
+    m_shader->setUniform("m", m);
+    if (occluded) {
+         m_shader->applyMaterial(m_occludedMaterial);
+    }
+    else {
+        m_shader->applyMaterial(m_skyMaterial);
+    }
+    m_ground->draw();
+
+    // side
+    m = glm::translate(glm::vec3(-skyBoxDim/2.f, skyBoxDim/2.f, 0.f));
+    m = m * glm::rotate(glm::half_pi<float>(), glm::vec3(0.f, 1.f, 0.f));
+    m = m * glm::scale(glm::vec3(skyBoxDim, skyBoxDim, 0.f));
+    m_shader->setUniform("m", m);
+    if (occluded) {
+         m_shader->applyMaterial(m_occludedMaterial);
+    }
+    else {
+        m_shader->applyMaterial(m_skyMaterial);
+    }
+    m_ground->draw();
+
     m_shader->unbind();
 }
 
@@ -353,7 +423,7 @@ void Scene::sunPass() {
     m_shader->setUniform("useTexture", false);
 
     glm::mat4 m;
-    m = m * glm::translate(glm::vec3(0.f, 7.f, -25.f));
+    m = m * glm::translate(glm::vec3(0.f, 7.f, -22.f));
     m = m * glm::scale(glm::vec3(4.0f, 4.0f, 4.0f));
     m_shader->setUniform("m", m);
     m_shader->applyMaterial(m_whiteMaterial);
@@ -365,13 +435,23 @@ void Scene::sunPass() {
 void Scene::addLighting() {
     m_shader->bind();
     m_shader->setUniform("useLighting", true);
-    for (float x = -10; x <= 10; x++) {
-        CS123SceneLightData l;
-        l.type = LightType::LIGHT_POINT;
-        l.pos = glm::vec4(x, 5.f, -9.f, 1.f);
-        l.color = glm::vec4(1.f, 1.f, 1.f, 1.f);
-        m_shader->setLight(l);
-    }
+    int i = 0;
+
+    CS123SceneLightData l;
+    l.type = LightType::LIGHT_POINT;
+    l.pos = glm::vec4(0.f, 7.f, -22.f, 1.f);
+    l.color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+    l.id = i;
+    m_shader->setLight(l);
+    i++;
+
+    l.type = LightType::LIGHT_DIRECTIONAL;
+    l.dir = glm::normalize(-glm::vec4(0.f, 7.f, -22.f, 0.f));
+    l.color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+    l.id = i;
+    m_shader->setLight(l);
+    i++;
+
     m_shader->unbind();
 }
 
@@ -387,8 +467,8 @@ void Scene::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    renderPrimitives(false); // renders all primitives without crepuscular rays
-    //crepscularRayPass();
+    //renderPrimitives(false); // renders all primitives without crepuscular rays
+    crepscularRayPass();
 //    for (glm::mat4x4 trans: m_grassTrans) {
 //        grassPass(false, trans);
 //    }

@@ -11,5 +11,7 @@
         <file alias="grass.png">images/grass.png</file>
         <file alias="bark.jpg">images/bark.jpg</file>
         <file alias="soil.png">images/soil.png</file>
+        <file alias="sky1.png">images/sky1.png</file>
+        <file alias="sky2.png">images/sky2.png</file>
     </qresource>
 </RCC>

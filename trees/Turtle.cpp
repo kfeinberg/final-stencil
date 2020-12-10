@@ -161,7 +161,7 @@ void Turtle::restore() {
 }
 
 glm::mat4x4 Turtle::currTransMatrix() {
-    glm::mat4x4 scale = glm::scale(glm::vec3(m_thickness, f_dist, m_thickness)); // scales cylinder in y direction by f_dist
+    glm::mat4x4 scale = glm::scale(glm::vec3(m_thickness, f_dist + f_dist/10.f, m_thickness)); // scales cylinder in y direction by f_dist
 
     glm::vec3 orig = glm::vec3(0, 1, 0);
     float theta = acos(glm::dot(orig, m_dir));

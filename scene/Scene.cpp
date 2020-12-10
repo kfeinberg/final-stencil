@@ -7,9 +7,9 @@ Scene::Scene()
     // creating primitives
     m_ground = std::make_unique<Plane>();
     m_grass = std::make_unique<Grass>();
-    m_branch = std::make_unique<Cylinder>(1, 8);
+    m_branch = std::make_unique<Cylinder>(1, 10);
     m_leaf = std::make_unique<Leaf>();
-    m_sun = std::make_unique<Sphere>(8, 8);
+    m_sun = std::make_unique<Sphere>(12, 12);
 
     // loading and compiling phong shader
     std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/shader.vert");
@@ -39,12 +39,12 @@ Scene::Scene()
     params.applyTo(*m_soilTexture.get());
 
     // loading bark texture
-    QImage barkImage(":/images/bark.jpg");
-    m_barkTexture = std::make_unique<Texture2D>(barkImage.bits(), barkImage.width(), barkImage.height());
+    QImage skyImage(":/images/sky1.png");
+    m_skyTexture = std::make_unique<Texture2D>(skyImage.bits(), skyImage.width(), skyImage.height());
     builder.setFilter(TextureParameters::FILTER_METHOD::NEAREST);
     builder.setWrap(TextureParameters::WRAP_METHOD::CLAMP_TO_EDGE);
     params = builder.build();
-    params.applyTo(*m_barkTexture.get());
+    params.applyTo(*m_skyTexture.get());
 
     // setting camera orientation
     m_camera.orientLook(
@@ -71,6 +71,10 @@ Scene::Scene()
     m_leafMaterial.cAmbient.r = 14.f / 255.f;
     m_leafMaterial.cAmbient.g = 107.f / 255.f;
     m_leafMaterial.cAmbient.b = 14.f / 255.f;
+    m_leafMaterial.cDiffuse = m_leafMaterial.cAmbient;
+    m_leafMaterial.cSpecular.r = .01f;
+    m_leafMaterial.cSpecular.g = .01f;
+    m_leafMaterial.cSpecular.b = .01f;
 
     // set white material
     m_whiteMaterial.clear();
@@ -92,6 +96,8 @@ Scene::Scene()
     m_quad->setAttribute(ShaderAttrib::POSITION, 3, 0, VBOAttribMarker::DATA_TYPE::FLOAT, false);
     m_quad->setAttribute(ShaderAttrib::TEXCOORD0, 2, 3*sizeof(GLfloat), VBOAttribMarker::DATA_TYPE::FLOAT, false);
     m_quad->buildVAO();
+
+    srand(time(NULL));
 
     initializeTreePositions();
     initializeGrassPositions();
@@ -172,7 +178,8 @@ void Scene::crepscularRayPass() {
     m_crepscularRayShader->setTexture("regularScene", m_regularPass->getColorAttachment(0)); // sets regular scene
 
     // set sun position
-    m_crepscularRayShader->setUniform("sunPos", glm::vec3(0.f, .8f, -1.f)); // TODO: update with real sun pos
+    m_crepscularRayShader->setUniform("sunPos", glm::vec3(0.f, .5f, -1.f)); // TODO: update with real sun pos
+    //m_crepscularRayShader->setUniform("sunPos", glm::vec3(0.f, .6f, -20.f)); // TODO: update with real sun pos
     glViewport(0, 0, m_width, m_height);
     m_quad->draw(); // renders combined image with crespcular rays
 
@@ -200,10 +207,10 @@ void Scene::initializeTreePositions() {
 //    }
 
     // top section
-    for (int x = -10; x <= 10; x+=3) {
-        for (int z = -18; z <= -10; z+=3) {
-            float x_coord = scatterPoint(x, 1.4f);
-            float z_coord = scatterPoint(z, 1.4f);
+    for (int x = -10; x <= 10; x+=2.5) {
+        for (int z = -16; z <= -8; z+=2.5) {
+            float x_coord = scatterPoint(x, 1.2f);
+            float z_coord = scatterPoint(z, 1.2f);
             m_treeTrans.push_back(glm::translate(glm::vec3(x_coord, 0.f, z_coord)));
         }
     }
@@ -219,14 +226,15 @@ void Scene::initializeTreePositions() {
 }
 
 void Scene::initializeGrassPositions() {
-    float step = 0.4f;
-    for (float x = -18; x <= 18; x+=step) {
-        for (float z = -18; z <= 18; z+=step) {
+    float step = 0.3f;
+    for (float x = -25; x <= 25; x+=step) {
+        for (float z = -25; z <= 25; z+=step) {
 
             // carpet grass with semi randomness
             float x_coord = scatterPoint(x, .12f);
+            float y_coord = scatterPoint(0.3f, .1f);
             float z_coord = scatterPoint(z, .12f);
-            glm::mat4x4 m = glm::translate(glm::vec3(x_coord, 0.5f, z_coord));
+            glm::mat4x4 m = glm::translate(glm::vec3(x_coord, y_coord, z_coord));
 
             // random theta for random rotation
             float theta = (((float) rand()) / (float) RAND_MAX) * M_2_PI;
@@ -235,7 +243,7 @@ void Scene::initializeGrassPositions() {
             }
 
             // random scale for higher/lower grass
-            float scale_val = scatterPoint(.8f, .2f);
+            float scale_val = scatterPoint(.6f, .15f);
             m = m * glm::scale(glm::vec3(scale_val, scale_val, .8f));
 
             m_grassTrans.push_back(m);
@@ -294,6 +302,7 @@ void Scene::groundPass(bool occluded) {
     m_ground->draw();
 
     // side
+    m_skyTexture->bind();
     m = glm::translate(glm::vec3(0.f, skyBoxDim/2.f, -skyBoxDim/2.f));
     m = m * glm::scale(glm::vec3(skyBoxDim, skyBoxDim, 0.f));
     m_shader->setUniform("m", m);
@@ -302,8 +311,10 @@ void Scene::groundPass(bool occluded) {
     }
     else {
         m_shader->applyMaterial(m_skyMaterial);
+        m_shader->setUniform("useTexture", true);
     }
     m_ground->draw();
+    m_skyTexture->unbind();
 
     // side
     m = glm::translate(glm::vec3(0.f, skyBoxDim/2.f, skyBoxDim/2.f));
@@ -437,7 +448,7 @@ void Scene::sunPass() {
 
     glm::mat4 m;
     m = m * glm::translate(glm::vec3(0.f, 7.f, -22.f));
-    m = m * glm::scale(glm::vec3(4.0f, 4.0f, 4.0f));
+    m = m * glm::scale(glm::vec3(3.5f, 3.5f, 3.5f));
     m_shader->setUniform("m", m);
     m_shader->applyMaterial(m_whiteMaterial);
     m_sun->draw();
@@ -450,6 +461,9 @@ void Scene::addLighting() {
     m_shader->setUniform("useLighting", true);
     int i = 0;
 
+    glm::vec4 golden = glm::vec4(255.f/255.f, 206.f/255.f, 66.f/255.f, .3f);
+
+    // sun point light
     CS123SceneLightData l;
     l.type = LightType::LIGHT_POINT;
     l.pos = glm::vec4(0.f, 7.f, -22.f, 1.f);
@@ -458,9 +472,26 @@ void Scene::addLighting() {
     m_shader->setLight(l);
     i++;
 
+    // sun point light gold
+    l.type = LightType::LIGHT_POINT;
+    l.pos = glm::vec4(0.f, 7.f, -22.f, 1.f);
+    l.color = golden;
+    l.id = i;
+    m_shader->setLight(l);
+    i++;
+
+    // sun directional light
     l.type = LightType::LIGHT_DIRECTIONAL;
     l.dir = glm::normalize(-glm::vec4(0.f, 7.f, -22.f, 0.f));
-    l.color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+    l.color = glm::vec4(1.f, 1.f, 1.f, .5f);
+    l.id = i;
+    m_shader->setLight(l);
+    i++;
+
+    // point light for more scene illumination
+    l.type = LightType::LIGHT_POINT;
+    l.pos = glm::vec4(0.f, 0.f, 0.f, 1.f);
+    l.color = glm::vec4(.1f, .1f, .1f, .1f);
     l.id = i;
     m_shader->setLight(l);
     i++;
@@ -480,6 +511,6 @@ void Scene::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    //renderPrimitives(false); // renders all primitives without crepuscular rays
-    crepscularRayPass();
+    renderPrimitives(false); // renders all primitives without crepuscular rays
+    //crepscularRayPass();
 }

@@ -28,7 +28,7 @@
 
 #include "gl/GLDebug.h" // useful for debugging shader stuff
 
-const float skyBoxDim = 50;
+const float skyBoxDim = 42;
 
 class OpenGLShape;
 
@@ -68,7 +68,7 @@ private:
     std::unique_ptr<CS123::GL::Shader> m_crepscularRayShader;
 
     std::unique_ptr<CS123::GL::Texture2D> m_grassTexture;
-    std::unique_ptr<CS123::GL::Texture2D> m_barkTexture;
+    std::unique_ptr<CS123::GL::Texture2D> m_skyTexture;
     std::unique_ptr<CS123::GL::Texture2D> m_soilTexture;
 
     CamtransCamera m_camera;

@@ -59,6 +59,7 @@ private:
     void sunPass();
     void renderPrimitives(bool occluded);
     float scatterPoint(float cur, float scatter);
+    void addLighting();
 
     // precalculates tree and grass positions in scene
     void initializeTreePositions();

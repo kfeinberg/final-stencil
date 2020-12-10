@@ -55,6 +55,9 @@ Scene::Scene()
     m_woodMaterial.cAmbient.r = 133.f / 255.f;
     m_woodMaterial.cAmbient.g = 94.f / 255.f;
     m_woodMaterial.cAmbient.b = 66.f / 255.f;
+    m_woodMaterial.cDiffuse.r = 30.f;
+    m_woodMaterial.cDiffuse.g = 30.f;
+    m_woodMaterial.cDiffuse.b = 30.f;
 
     // set leaf material
     m_leafMaterial.clear();
@@ -81,6 +84,8 @@ Scene::Scene()
     initializeGrassPositions();
 
     initializeTrees();
+
+    addLighting();
 }
 
 Scene::~Scene()
@@ -238,7 +243,7 @@ void Scene::renderPrimitives(bool occluded) {
 
 void Scene::groundPass(bool occluded) {
     m_shader->bind();
-    m_shader->setUniform("useLighting", false);
+    m_shader->setUniform("useLighting", true);
     m_shader->setUniform("useTexture", false);
     m_shader->setUniform("p", m_camera.getProjectionMatrix());
     m_shader->setUniform("v", m_camera.getViewMatrix());
@@ -261,7 +266,7 @@ void Scene::groundPass(bool occluded) {
 void Scene::grassPass(bool occluded, glm::mat4x4 trans) {
     m_shader->bind();
     m_grassTexture->bind();
-    m_shader->setUniform("useLighting", false);
+    m_shader->setUniform("useLighting", true);
     m_shader->setUniform("p", m_camera.getProjectionMatrix());
     m_shader->setUniform("v", m_camera.getViewMatrix());
 
@@ -358,6 +363,18 @@ void Scene::sunPass() {
     m_shader->unbind();
 }
 
+void Scene::addLighting() {
+    m_shader->bind();
+    m_shader->setUniform("useLighting", true);
+    for (float x = -10; x <= 10; x++) {
+        CS123SceneLightData l;
+        l.type = LightType::LIGHT_POINT;
+        l.pos = glm::vec4(x, 5.f, -9.f, 1.f);
+        m_shader->setLight(l);
+    }
+    m_shader->unbind();
+}
+
 /*
  * This is just a quick note on how to use the camera, we can delete this before we push the final code.
  * Up, down, left, right arrow- "moves" the camera in this direction. The camera itself isn't moved, but its
@@ -370,9 +387,9 @@ void Scene::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    //renderPrimitives(false); // renders all primitives without crepuscular rays
-    crepscularRayPass();
-    for (glm::mat4x4 trans: m_grassTrans) {
-        grassPass(false, trans);
-    }
+    renderPrimitives(false); // renders all primitives without crepuscular rays
+    //crepscularRayPass();
+//    for (glm::mat4x4 trans: m_grassTrans) {
+//        grassPass(false, trans);
+//    }
 }

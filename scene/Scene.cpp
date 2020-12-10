@@ -38,14 +38,6 @@ Scene::Scene()
     params = builder.build();
     params.applyTo(*m_soilTexture.get());
 
-    // loading sky texture
-    QImage skyImage(":/images/sky1.png");
-    m_skyTexture = std::make_unique<Texture2D>(skyImage.bits(), skyImage.width(), skyImage.height());
-    builder.setFilter(TextureParameters::FILTER_METHOD::NEAREST);
-    builder.setWrap(TextureParameters::WRAP_METHOD::CLAMP_TO_EDGE);
-    params = builder.build();
-    params.applyTo(*m_skyTexture.get());
-
     // setting camera orientation
     m_camera.orientLook(
                 glm::vec4(0.f, 2.f, 0.f, 1.f), // eye position
@@ -84,9 +76,9 @@ Scene::Scene()
 
     // set sky material
     m_skyMaterial.clear();
-    m_skyMaterial.cAmbient.r = 135.f / 255.f;
-    m_skyMaterial.cAmbient.g = 206.f / 255.f;
-    m_skyMaterial.cAmbient.b = 250.f / 255.f;
+    m_skyMaterial.cAmbient.r = 160.f / 255.f;
+    m_skyMaterial.cAmbient.g = 172.f / 255.f;
+    m_skyMaterial.cAmbient.b = 208.f / 255.f;
 
     // initialize quad used for crepscular ray display
     std::vector<GLfloat> quadData;
@@ -291,7 +283,7 @@ void Scene::groundPass(bool occluded) {
     m_shader->setUniform("useTexture", false);
 
     // top
-    m = glm::translate(glm::vec3(0.f, skyBoxDim/2.f, 0.f));
+    m = glm::translate(glm::vec3(0.f, skyBoxDim/2, 0.f));
     m = m * glm::rotate(glm::half_pi<float>(), glm::vec3(1.f, 0.f, 0.f));
     m = m * glm::scale(glm::vec3(skyBoxDim, skyBoxDim, 0.f));
     m_shader->setUniform("m", m);
@@ -304,9 +296,6 @@ void Scene::groundPass(bool occluded) {
     m_ground->draw();
 
     // side
-    m_shader->setUniform("useTexture", true);
-    m_shader->setUniform("repeat", 1.f);
-    m_skyTexture->bind();
     m = glm::translate(glm::vec3(0.f, skyBoxDim/2.f, -skyBoxDim/2.f));
     m = m * glm::scale(glm::vec3(skyBoxDim, skyBoxDim, 0.f));
     m_shader->setUniform("m", m);
@@ -314,11 +303,9 @@ void Scene::groundPass(bool occluded) {
          m_shader->applyMaterial(m_occludedMaterial);
     }
     else {
-        m_shader->applyMaterial(m_whiteMaterial);
+        m_shader->applyMaterial(m_skyMaterial);
     }
     m_ground->draw();
-    m_skyTexture->unbind();
-    m_shader->setUniform("useTexture", false);
 
     // side
     m = glm::translate(glm::vec3(0.f, skyBoxDim/2.f, skyBoxDim/2.f));
@@ -515,6 +502,6 @@ void Scene::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    renderPrimitives(false); // renders all primitives without crepuscular rays
-    //crepscularRayPass();
+    //renderPrimitives(false); // renders all primitives without crepuscular rays
+    crepscularRayPass();
 }

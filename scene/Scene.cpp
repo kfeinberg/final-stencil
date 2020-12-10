@@ -77,9 +77,10 @@ Scene::Scene()
     m_quad->setAttribute(ShaderAttrib::TEXCOORD0, 2, 3*sizeof(GLfloat), VBOAttribMarker::DATA_TYPE::FLOAT, false);
     m_quad->buildVAO();
 
-    initializeTrees();
     initializeTreePositions();
     initializeGrassPositions();
+
+    initializeTrees();
 }
 
 Scene::~Scene()
@@ -98,8 +99,10 @@ void Scene::initializeTrees() {
 
     std::string axiom = "FA";
 
-    Tree t = Tree(rules, axiom, 9);
-    m_trees.push_back(t);
+    for (int i = 0; i < 5; i++) {
+        Tree t = Tree(rules, axiom, 9);
+        m_trees.push_back(t);
+    }
 }
 
 void Scene::updateDimensions(int width, int height) {
@@ -162,22 +165,22 @@ void Scene::crepscularRayPass() {
 void Scene::initializeTreePositions() {
 
     // right section
-    for (int x = 10; x <= 19; x+=3) {
-        for (int z = -18; z <= 18; z+=3) {
-            float x_coord = scatterPoint(x, 1.4f);
-            float z_coord = scatterPoint(z, 1.4f);
-            m_treeTrans.push_back(glm::translate(glm::vec3(x_coord, 0.f, z_coord)));
-        }
-    }
+//    for (int x = 10; x <= 19; x+=3) {
+//        for (int z = -18; z <= 18; z+=3) {
+//            float x_coord = scatterPoint(x, 1.4f);
+//            float z_coord = scatterPoint(z, 1.4f);
+//            m_treeTrans.push_back(glm::translate(glm::vec3(x_coord, 0.f, z_coord)));
+//        }
+//    }
 
     // left section
-    for (int x = -19; x <= -10; x+=3) {
-        for (int z = -18; z <= 18; z+=3) {
-            float x_coord = scatterPoint(x, 1.4f);
-            float z_coord = scatterPoint(z, 1.4f);
-            m_treeTrans.push_back(glm::translate(glm::vec3(x_coord, 0.f, z_coord)));
-        }
-    }
+//    for (int x = -19; x <= -10; x+=3) {
+//        for (int z = -18; z <= 18; z+=3) {
+//            float x_coord = scatterPoint(x, 1.4f);
+//            float z_coord = scatterPoint(z, 1.4f);
+//            m_treeTrans.push_back(glm::translate(glm::vec3(x_coord, 0.f, z_coord)));
+//        }
+//    }
 
     // top section
     for (int x = -10; x <= 10; x+=3) {
@@ -189,13 +192,13 @@ void Scene::initializeTreePositions() {
     }
 
     // bottom section
-    for (int x = -10; x <= 10; x+=3) {
-        for (int z = 10; z <= 18; z+=3) {
-            float x_coord = scatterPoint(x, 1.4f);
-            float z_coord = scatterPoint(z, 1.4f);
-            m_treeTrans.push_back(glm::translate(glm::vec3(x_coord, 0.f, z_coord)));
-        }
-    }
+//    for (int x = -10; x <= 10; x+=3) {
+//        for (int z = 10; z <= 18; z+=3) {
+//            float x_coord = scatterPoint(x, 1.4f);
+//            float z_coord = scatterPoint(z, 1.4f);
+//            m_treeTrans.push_back(glm::translate(glm::vec3(x_coord, 0.f, z_coord)));
+//        }
+//    }
 }
 
 void Scene::initializeGrassPositions() {
@@ -225,8 +228,8 @@ void Scene::initializeGrassPositions() {
 
 void Scene::renderPrimitives(bool occluded) {
 
-    for (glm::mat4x4 trans: m_treeTrans) {
-        treePass(occluded, trans, 0);
+    for (int i = 0; i < m_treeTrans.size(); i++) {
+        treePass(occluded, i%5, m_treeTrans[i]);
     }
 
     sunPass();
@@ -249,7 +252,7 @@ void Scene::groundPass(bool occluded) {
          m_shader->applyMaterial(m_occludedMaterial);
     }
     else {
-        m_shader->applyMaterial(m_occludedMaterial);
+        m_shader->applyMaterial(m_leafMaterial);
     }
     m_ground->draw();
     m_shader->unbind();
@@ -298,7 +301,7 @@ float Scene::scatterPoint(float curr, float scatter) {
  * @param trans: translation of the tree
  * @param t: integer for which tree to draw
  */
-void Scene::treePass(bool occluded, glm::mat4x4 trans, int t) {
+void Scene::treePass(bool occluded, int t, glm::mat4x4 trans) {
     m_shader->bind();
     m_shader->setUniform("useLighting", true);
     m_shader->setUniform("useTexture", false);
@@ -307,13 +310,12 @@ void Scene::treePass(bool occluded, glm::mat4x4 trans, int t) {
     //m_barkTexture->bind();
 
     Tree curr = m_trees[t];
-    curr.setTreeTransformation(trans);
 
     std::vector<glm::mat4x4> cyl_trans = curr.getTranformations();
     std::vector<TreeComponents> comps = curr.getComponents();
 
     for (size_t i = 0; i < cyl_trans.size(); i++) {
-        m_shader->setUniform("m", cyl_trans[i]);
+        m_shader->setUniform("m", trans * cyl_trans[i]);
         if (comps[i] == TreeComponents::BRANCH) {
             if (occluded) {
                  m_shader->applyMaterial(m_occludedMaterial);

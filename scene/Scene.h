@@ -55,7 +55,7 @@ private:
     void initializeTrees();
     void groundPass(bool occluded);
     void grassPass(bool occluded, glm::mat4x4 trans);
-    void treePass(bool occluded, glm::mat4x4 trans, int t);
+    void treePass(bool occluded, int t, glm::mat4x4 trans);
     void sunPass();
     void renderPrimitives(bool occluded);
     float scatterPoint(float cur, float scatter);
@@ -81,7 +81,6 @@ private:
     std::unique_ptr<TexturedShape> m_grass;
     std::unique_ptr<Leaf> m_leaf;
     std::unique_ptr<Shape> m_branch;
-    std::vector<Tree> m_trees;
     std::unique_ptr<Sphere> m_sun;
 
     std::unique_ptr<OpenGLShape> m_quad;
@@ -94,6 +93,8 @@ private:
     // precalculated semi-random positions for trees and grass
     std::vector<glm::mat4x4> m_treeTrans;
     std::vector<glm::mat4x4> m_grassTrans;
+
+    std::vector<Tree> m_trees;
 };
 
 #endif // SCENE_H

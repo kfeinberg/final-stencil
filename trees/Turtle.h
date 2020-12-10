@@ -32,7 +32,7 @@ class Turtle
 {
 public:
     Turtle();
-    void parseInput(std::string input, glm::mat4x4 trans);
+    void parseInput(std::string input);
     void executeCommand(char c, bool hasParam, float param);
     void moveForward(); // moves turtle forward, draws branch
     void drawLeaf(); // draws leaf at current location
@@ -54,7 +54,6 @@ private:
     glm::vec3 m_dir; // current direction vector
     glm::vec3 m_right; // current "right" vector
     float m_thickness; // current thickness of branch
-    glm::mat4x4 m_sceneTrans; // location of tree in scene
 };
 
 #endif // TURTLE_H

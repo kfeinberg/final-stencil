@@ -76,9 +76,9 @@ Scene::Scene()
 
     // set sky material
     m_skyMaterial.clear();
-    m_skyMaterial.cAmbient.r = 160.f / 255.f;
-    m_skyMaterial.cAmbient.g = 172.f / 255.f;
-    m_skyMaterial.cAmbient.b = 208.f / 255.f;
+    m_skyMaterial.cAmbient.r = 161.f / 255.f;
+    m_skyMaterial.cAmbient.g = 171.f / 255.f;
+    m_skyMaterial.cAmbient.b = 205.f / 255.f;
 
     // initialize quad used for crepscular ray display
     std::vector<GLfloat> quadData;

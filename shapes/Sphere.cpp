@@ -28,9 +28,9 @@ void Sphere::updateParameters(int shapeParameter1, int shapeParameter2, float sh
 }
 
 void Sphere::generateVertices() {
-    int vecsPerTriangle = 2 * 3;
-    int vecsPerFace = 2 * vecsPerTriangle + 2 * 2 * 3 * (m_shapeParameter1 - 2);
-    int totalFloats = 3 * m_shapeParameter2 * vecsPerFace;
+    int vecsPerTriangle = attributesPerVertex * verticesPerTriangle;
+    int vecsPerFace = 2 * vecsPerTriangle + attributesPerVertex * trianglesPerQuad * verticesPerTriangle * (m_shapeParameter1 - 2);
+    int totalFloats = floatsPerVec * m_shapeParameter2 * vecsPerFace;
 
     std::vector<glm::vec4> triangle;
     triangle.reserve(vecsPerTriangle);
@@ -55,7 +55,7 @@ void Sphere::generateVertices() {
     }
     // use translation to get matching bottom triangle
     glm::mat4 T = glm::rotate(glm::pi<float>(), glm::vec3(0.0f, 0.0f, 1.0f));
-    applyTransformation(T, triangle);
+    Shape::applyTransformation(T, triangle);
     // copy triangle over to face
     for (glm::vec4 &v : triangle) {
         face.push_back(v);
@@ -79,11 +79,11 @@ void Sphere::generateVertices() {
 
     // we rotate our initial face so perspective matches demo
     T = glm::rotate(glm::half_pi<float>(), glm::vec3(0.0f, 1.0f, 0.0f));
-    applyTransformation(T, face);
+    Shape::applyTransformation(T, face);
 
     // creating all faces of sphere
     T = glm::rotate(dTheta, glm::vec3(0.0f, 1.0f, 0.0f));
-    transformAndStore(T, face, m_shapeParameter2);
+    Shape::transformAndStore(T, face, m_shapeParameter2);
 
     buildVAO();
 }
@@ -100,25 +100,4 @@ void Sphere::calculateAndStoreNormal(std::vector<glm::vec4> &v) {
     glm::vec4 normal = glm::vec4(v.back());
     normal.w = 0.0f; // normals have w set to 0 by convention
     v.push_back(glm::normalize(normal));
-}
-
-void Sphere::applyTransformation(const glm::mat4 &T, std::vector<glm::vec4> &data) {
-    for (glm::vec4 &v : data) {
-        v = T * v;
-    }
-}
-
-void Sphere::storeVertices(std::vector<glm::vec4> &data) {
-    for (const glm::vec4 &v : data) {
-        m_vertexData.push_back(v.x);
-        m_vertexData.push_back(v.y);
-        m_vertexData.push_back(v.z);
-    }
-}
-
-void Sphere::transformAndStore(const glm::mat4 &T, std::vector<glm::vec4> &data, int iterations) {
-    for (int i = 0; i < iterations; i++) {
-        storeVertices(data);
-        applyTransformation(T, data);
-    }
 }

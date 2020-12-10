@@ -41,6 +41,9 @@ SOURCES += ui/mainwindow.cpp \
     main.cpp \
     glew-1.10.0/src/glew.c \
     scene/Scene.cpp \
+    shapes/CircularBaseShape.cpp \
+    shapes/Cone.cpp \
+    shapes/Cube.cpp \
     shapes/Grass.cpp \
     shapes/Plane.cpp \
     shapes/Sphere.cpp \
@@ -49,8 +52,6 @@ SOURCES += ui/mainwindow.cpp \
     ui/viewformat.cpp \
     trees/LSystem.cpp \
     shapes/Cylinder.cpp \
-    shapes/CylinderComponent.cpp \
-    shapes/ShapeComponent.cpp \
     shapes/Shape.cpp \
     trees/Turtle.cpp \
     shapes/Leaf.cpp \
@@ -79,6 +80,9 @@ HEADERS += ui/mainwindow.h \
     lib/CS123XmlSceneParser.h \
     lib/ResourceLoader.h \
     scene/Scene.h \
+    shapes/CircularBaseShape.h \
+    shapes/Cone.h \
+    shapes/Cube.h \
     shapes/Grass.h \
     shapes/Plane.h \
     shapes/Sphere.h \
@@ -89,8 +93,6 @@ HEADERS += ui/mainwindow.h \
     ui/viewformat.h \
     trees/LSystem.h \
     shapes/Cylinder.h \
-    shapes/CylinderComponent.h \
-    shapes/ShapeComponent.h \
     shapes/Shape.h \
     trees/Turtle.h \
     shapes/Leaf.h \

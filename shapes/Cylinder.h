@@ -1,17 +1,16 @@
 #ifndef CYLINDER_H
 #define CYLINDER_H
 
-#include "Shape.h"
+#include "CircularBaseShape.h"
 
-class Cylinder: public Shape
+class Cylinder : public CircularBaseShape
 {
 public:
-    Cylinder();
-    Cylinder(int param1, int param2);
+    Cylinder(int shapeParameter1, int shapeParameter2);
     ~Cylinder();
-private:
-    int m_param1;
-    int m_param2;
+
+protected:
+    void generateVertices() override;
 };
 
 #endif // CYLINDER_H

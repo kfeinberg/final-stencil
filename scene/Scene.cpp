@@ -55,9 +55,8 @@ Scene::Scene()
     m_woodMaterial.cAmbient.r = 133.f / 255.f;
     m_woodMaterial.cAmbient.g = 94.f / 255.f;
     m_woodMaterial.cAmbient.b = 66.f / 255.f;
-    m_woodMaterial.cDiffuse.r = 30.f;
-    m_woodMaterial.cDiffuse.g = 30.f;
-    m_woodMaterial.cDiffuse.b = 30.f;
+    m_woodMaterial.cDiffuse = m_woodMaterial.cAmbient;
+    m_woodMaterial.cAmbient *= 0.1f;
 
     // set leaf material
     m_leafMaterial.clear();
@@ -370,6 +369,7 @@ void Scene::addLighting() {
         CS123SceneLightData l;
         l.type = LightType::LIGHT_POINT;
         l.pos = glm::vec4(x, 5.f, -9.f, 1.f);
+        l.color = glm::vec4(1.f, 1.f, 1.f, 1.f);
         m_shader->setLight(l);
     }
     m_shader->unbind();

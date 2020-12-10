@@ -28,6 +28,9 @@
 
 #include "gl/GLDebug.h" // useful for debugging shader stuff
 
+const int minBound = -10;
+const int maxBound = 10;
+
 class OpenGLShape;
 
 namespace CS123 { namespace GL {
@@ -57,9 +60,16 @@ private:
     void renderPrimitives(bool occluded);
     float scatterPoint(float cur, float scatter);
 
+    // precalculates tree and grass positions in scene
+    void initializeTreePositions();
+    void initializeGrassPositions();
+
     std::unique_ptr<CS123::GL::CS123Shader> m_shader;
     std::unique_ptr<CS123::GL::Shader> m_crepscularRayShader;
+
     std::unique_ptr<CS123::GL::Texture2D> m_grassTexture;
+    std::unique_ptr<CS123::GL::Texture2D> m_barkTexture;
+
 
     CamtransCamera m_camera;
     CS123SceneMaterial m_woodMaterial;
@@ -81,6 +91,9 @@ private:
     int m_width; // width of viewport
     int m_height; // height of viewport
 
+    // precalculated semi-random positions for trees and grass
+    std::vector<glm::mat4x4> m_treeTrans;
+    std::vector<glm::mat4x4> m_grassTrans;
 };
 
 #endif // SCENE_H

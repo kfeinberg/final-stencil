@@ -8,7 +8,6 @@ class Cylinder : public CircularBaseShape
 public:
     Cylinder(int shapeParameter1, int shapeParameter2);
     ~Cylinder();
-
 protected:
     void generateVertices() override;
 };

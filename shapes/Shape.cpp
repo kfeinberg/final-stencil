@@ -24,11 +24,12 @@ void Shape::draw() {
     }
 }
 
-void Shape::buildVAO() {
-    const int numFloatsPerVertex = 6;
+void Shape::buildVAO() {    
+    const int numFloatsPerVertex = 6; // 3 for position, 3 for normal, 2 for UV coords
     const int numVertices = m_vertexData.size() / numFloatsPerVertex;
 
     std::vector<VBOAttribMarker> markers;
+    markers.reserve(3);
     markers.push_back(VBOAttribMarker(ShaderAttrib::POSITION, 3, 0));
     markers.push_back(VBOAttribMarker(ShaderAttrib::NORMAL, 3, 3*sizeof(float)));
     VBO vbo = VBO(m_vertexData.data(), m_vertexData.size(), markers);

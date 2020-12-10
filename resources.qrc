@@ -9,5 +9,6 @@
     </qresource>
     <qresource prefix="/images">
         <file alias="grass.png">images/grass.png</file>
+        <file alias="bark.jpg">images/grass.png</file>
     </qresource>
 </RCC>

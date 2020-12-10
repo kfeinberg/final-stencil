@@ -30,9 +30,17 @@ Scene::Scene()
     TextureParameters params = builder.build();
     params.applyTo(*m_grassTexture.get());
 
+    // loading bark texture
+    QImage barkImage(":/images/bark.jpg");
+    m_barkTexture = std::make_unique<Texture2D>(barkImage.bits(), barkImage.width(), barkImage.height());
+    builder.setFilter(TextureParameters::FILTER_METHOD::NEAREST);
+    builder.setWrap(TextureParameters::WRAP_METHOD::CLAMP_TO_EDGE);
+    params = builder.build();
+    params.applyTo(*m_barkTexture.get());
+
     // setting camera orientation
     m_camera.orientLook(
-                glm::vec4(0.f, 0.f, 20.f, 1.f), // eye position
+                glm::vec4(0.f, 2.f, 0.f, 1.f), // eye position
                 glm::vec4(0.f, 0.f, -1.f, 0.f), // look vector
                 glm::vec4(0.f, 1.f, 0.f, 0.f)); // up vector
 
@@ -70,6 +78,8 @@ Scene::Scene()
     m_quad->buildVAO();
 
     initializeTrees();
+    initializeTreePositions();
+    initializeGrassPositions();
 }
 
 Scene::~Scene()
@@ -83,21 +93,13 @@ void Scene::initializeTrees() {
     // source: https://github.com/abiusx/L3D/blob/master/L%2B%2B/tree.l%2B%2B
     std::map<char, std::vector<std::string>> rules;
 
-    rules['A']=std::vector<std::string>{"^FB/*/B*//*///B"};
-    rules['B']=std::vector<std::string>{"[>^^F*//*//*//A]", "[>&F*//*//*//A]"};
+    rules['A']=std::vector<std::string>{"^FB//B*//*///B"};
+    rules['B']=std::vector<std::string>{"[>^*^F*//*//*//A]", "[>&F*/*/*//*//A]"};
 
     std::string axiom = "FA";
 
     Tree t = Tree(rules, axiom, 9);
     m_trees.push_back(t);
-
-//    axiom = "FA";
-//    rules['A'] = std::vector<std::string>{"^F>(30)B\\B\\\\\B"};
-//    rules['B'] = std::vector<std::string>{"[^^FL\\\\\\AL]"};
-//    rules['L'] = std::vector<std::string>{"[^(60)[*(.3)]+(50)*(.28)]", "[^(60)*(.3)]", "[&(70)*(.3)]"};
-
-//    t = Tree(rules, axiom, 10);
-//    m_trees.push_back(t);
 }
 
 void Scene::updateDimensions(int width, int height) {
@@ -141,7 +143,6 @@ void Scene::crepscularRayPass() {
     m_occludedPass->unbind(); // unbind occluded pass scene FBO
     // end of part 2
 
-
     // part 3: render combined scenes with crepscular rays
     m_crepscularRayShader->bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear in between passes
@@ -158,27 +159,78 @@ void Scene::crepscularRayPass() {
     m_crepscularRayShader->unbind();
 }
 
-void Scene::renderPrimitives(bool occluded) {
+void Scene::initializeTreePositions() {
 
-    // TODO: find different method of displaying grass?
-    // carpets grass for ground
-    float step = 0.4f;
-    for (float x = -5; x <= 5; x+=step) {
-        for (float z = -5; z <= 5; z+=step) {
-            float x_coord = scatterPoint(x, step/3.0f);
-            float z_coord = scatterPoint(z, step/3.0f);
-            grassPass(occluded, glm::translate(glm::vec3(x, 0.f, z)));
+    // right section
+    for (int x = 10; x <= 19; x+=3) {
+        for (int z = -18; z <= 18; z+=3) {
+            float x_coord = scatterPoint(x, 1.4f);
+            float z_coord = scatterPoint(z, 1.4f);
+            m_treeTrans.push_back(glm::translate(glm::vec3(x_coord, 0.f, z_coord)));
         }
     }
 
-    // distributes scene semi-randomly around scene
-    step = 4.0f;
-    for (int x = -4; x <= 4; x+=4) {
-        for (float z = -4; z <= 4; z+=4) {
-            float x_coord = scatterPoint(x, step/2.0f);
-            float z_coord = scatterPoint(z, step/2.0f);
-            treePass(occluded, glm::translate(glm::vec3(x_coord, 0, z_coord)), 0);
+    // left section
+    for (int x = -19; x <= -10; x+=3) {
+        for (int z = -18; z <= 18; z+=3) {
+            float x_coord = scatterPoint(x, 1.4f);
+            float z_coord = scatterPoint(z, 1.4f);
+            m_treeTrans.push_back(glm::translate(glm::vec3(x_coord, 0.f, z_coord)));
         }
+    }
+
+    // top section
+    for (int x = -10; x <= 10; x+=3) {
+        for (int z = -18; z <= -10; z+=3) {
+            float x_coord = scatterPoint(x, 1.4f);
+            float z_coord = scatterPoint(z, 1.4f);
+            m_treeTrans.push_back(glm::translate(glm::vec3(x_coord, 0.f, z_coord)));
+        }
+    }
+
+    // bottom section
+    for (int x = -10; x <= 10; x+=3) {
+        for (int z = 10; z <= 18; z+=3) {
+            float x_coord = scatterPoint(x, 1.4f);
+            float z_coord = scatterPoint(z, 1.4f);
+            m_treeTrans.push_back(glm::translate(glm::vec3(x_coord, 0.f, z_coord)));
+        }
+    }
+}
+
+void Scene::initializeGrassPositions() {
+    float step = 0.4f;
+    for (float x = -18; x <= 18; x+=step) {
+        for (float z = -18; z <= 18; z+=step) {
+
+            // carpet grass with semi randomness
+            float x_coord = scatterPoint(x, .12f);
+            float z_coord = scatterPoint(z, .12f);
+            glm::mat4x4 m = glm::translate(glm::vec3(x_coord, 0.5f, z_coord));
+
+            // random theta for random rotation
+            float theta = (((float) rand()) / (float) RAND_MAX) * M_2_PI;
+            if (theta != 0.0f) {
+                m = m * glm::rotate(theta, glm::vec3(0, 1, 0));
+            }
+
+            // random scale for higher/lower grass
+            float scale_val = scatterPoint(.8f, .2f);
+            m = m * glm::scale(glm::vec3(scale_val, scale_val, .8f));
+
+            m_grassTrans.push_back(m);
+        }
+    }
+}
+
+void Scene::renderPrimitives(bool occluded) {
+
+//    for (glm::mat4x4 trans: m_grassTrans) {
+//        grassPass(occluded, trans);
+//    }
+
+    for (glm::mat4x4 trans: m_treeTrans) {
+        treePass(occluded, trans, 0);
     }
 
     sunPass();
@@ -194,14 +246,14 @@ void Scene::groundPass(bool occluded) {
 
     glm::mat4 m;
     m = m * glm::rotate(glm::half_pi<float>(), glm::vec3(1.f, 0.f, 0.f));
-    m = m * glm::scale(glm::vec3(5.f, 5.f, 5.f));
+    m = m * glm::scale(glm::vec3(38.f, 38.f, 38.f));
 
     m_shader->setUniform("m", m);
     if (occluded) {
          m_shader->applyMaterial(m_occludedMaterial);
     }
     else {
-        m_shader->applyMaterial(m_leafMaterial);
+        m_shader->applyMaterial(m_occludedMaterial);
     }
     m_ground->draw();
     m_shader->unbind();
@@ -214,16 +266,8 @@ void Scene::grassPass(bool occluded, glm::mat4x4 trans) {
     m_shader->setUniform("p", m_camera.getProjectionMatrix());
     m_shader->setUniform("v", m_camera.getViewMatrix());
 
-    // randomly rotate patch of grass around y-axis
-    float theta = (((float) rand()) / (float) RAND_MAX) * M_2_PI;
 
-    glm::mat4 m;
-    m = m * trans;
-    if (theta != 0.0f) {
-        m = m * glm::rotate(theta, glm::vec3(0, 1, 0));
-    }
-    m = m * glm::scale(glm::vec3(.8f, .8f, .8f));
-    m_shader->setUniform("m", m);
+    m_shader->setUniform("m", trans);
     m_shader->setUniform("useTexture", true);
 
     if (occluded) {
@@ -232,7 +276,7 @@ void Scene::grassPass(bool occluded, glm::mat4x4 trans) {
     }
     else {
         m_shader->applyMaterial(m_leafMaterial);
-        //m_shader->setUniform("isOccluded", false);
+        m_shader->setUniform("isOccluded", false);
     }
 
     m_grass->draw();
@@ -260,10 +304,11 @@ float Scene::scatterPoint(float curr, float scatter) {
  */
 void Scene::treePass(bool occluded, glm::mat4x4 trans, int t) {
     m_shader->bind();
-    m_shader->setUniform("useLighting", false);
+    m_shader->setUniform("useLighting", true);
     m_shader->setUniform("useTexture", false);
     m_shader->setUniform("p", m_camera.getProjectionMatrix());
     m_shader->setUniform("v", m_camera.getViewMatrix());
+    //m_barkTexture->bind();
 
     Tree curr = m_trees[t];
     curr.setTreeTransformation(trans);
@@ -279,6 +324,7 @@ void Scene::treePass(bool occluded, glm::mat4x4 trans, int t) {
             }
             else {
                 m_shader->applyMaterial(m_woodMaterial);
+                //m_shader->setUniform("useTexture", true);
             }
             m_branch->draw();
         }
@@ -292,6 +338,7 @@ void Scene::treePass(bool occluded, glm::mat4x4 trans, int t) {
             m_leaf->draw();
         }
     }
+    //m_barkTexture->unbind();
     m_shader->unbind();
 }
 
@@ -304,8 +351,8 @@ void Scene::sunPass() {
     m_shader->setUniform("useTexture", false);
 
     glm::mat4 m;
-    m = m * glm::translate(glm::vec3(1.f, 5.6f, -4.f));
-    m = m * glm::scale(glm::vec3(2.0f, 2.0f, 2.0f));
+    m = m * glm::translate(glm::vec3(0.f, 7.f, -25.f));
+    m = m * glm::scale(glm::vec3(4.0f, 4.0f, 4.0f));
     m_shader->setUniform("m", m);
     m_shader->applyMaterial(m_whiteMaterial);
     m_sun->draw();
@@ -327,5 +374,7 @@ void Scene::render() {
 
     //renderPrimitives(false); // renders all primitives without crepuscular rays
     crepscularRayPass();
-    //treePass(false, glm::mat4x4(1), 0);
+    for (glm::mat4x4 trans: m_grassTrans) {
+        grassPass(false, trans);
+    }
 }
